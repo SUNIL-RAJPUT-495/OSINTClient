@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Fonts - Same to same names */
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Orbitron', sans-serif;
+
+  /* Colors mapping - v4 requires --color-* syntax */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Custom terminal tokens */
+  --color-terminal-green: hsl(var(--terminal-green));
+  --color-terminal-cyan: hsl(var(--terminal-cyan));
+  --color-terminal-purple: hsl(var(--terminal-purple));
+  --color-terminal-red: hsl(var(--terminal-red));
+  --color-terminal-yellow: hsl(var(--terminal-yellow));
+
+  /* Animations - Exact timing as your code */
+  --animate-flicker: flicker 0.15s infinite;
+  --animate-glitch: glitch 2s infinite;
+  --animate-typing: typing 3.5s steps(40, end);
+  --animate-scan: scan 8s linear infinite;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+
+  /* Keyframes inside theme so they are registered */
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+  @keyframes glitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+  }
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+  @keyframes scan {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px hsl(160 100% 50% / 0.3); }
+    50% { box-shadow: 0 0 40px hsl(160 100% 50% / 0.6); }
+  }
+}
+
+/* Base Variables */
+:root {
+  --background: 220 20% 4%;
+  --foreground: 160 100% 70%;
+  --card: 220 20% 6%;
+  --card-foreground: 160 100% 70%;
+  --popover: 220 20% 8%;
+  --popover-foreground: 160 100% 70%;
+  --primary: 160 100% 50%;
+  --primary-foreground: 220 20% 4%;
+  --secondary: 180 100% 50%;
+  --secondary-foreground: 220 20% 4%;
+  --muted: 220 15% 12%;
+  --muted-foreground: 160 50% 50%;
+  --accent: 280 100% 60%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 85% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 120 100% 40%;
+  --success-foreground: 220 20% 4%;
+  --warning: 45 100% 50%;
+  --warning-foreground: 220 20% 4%;
+  --border: 160 50% 20%;
+  --input: 220 15% 10%;
+  --ring: 160 100% 50%;
+  --radius: 0.25rem;
+  --terminal-green: 160 100% 50%;
+  --terminal-cyan: 180 100% 50%;
+  --terminal-purple: 280 100% 60%;
+  --terminal-red: 0 85% 55%;
+  --terminal-yellow: 45 100% 50%;
+  --glow-primary: 0 0 20px hsl(160 100% 50% / 0.5);
+  --glow-secondary: 0 0 20px hsl(180 100% 50% / 0.5);
+  --glow-accent: 0 0 20px hsl(280 100% 60% / 0.5);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { 
+    @apply bg-background text-foreground font-mono; 
+    font-family: 'JetBrains Mono', monospace;
+  }
+  ::selection { @apply bg-primary text-primary-foreground; }
+}
+
+/* Aapka saara components wala logic bilkul same */
+@layer components {
+  .terminal-card {
+    @apply bg-card border border-border rounded-sm relative overflow-hidden;
+    box-shadow: 0 0 30px hsl(160 100% 50% / 0.1);
+  }
+  .terminal-card::before {
+    content: '';
+    @apply absolute inset-0 pointer-events-none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(160 100% 50% / 0.02) 2px, hsl(160 100% 50% / 0.02) 4px);
+  }
+  .glow-text {
+    text-shadow: 0 0 10px hsl(160 100% 50% / 0.8), 0 0 20px hsl(160 100% 50% / 0.6), 0 0 40px hsl(160 100% 50% / 0.4);
+  }
+  .glow-text-cyan {
+    text-shadow: 0 0 10px hsl(180 100% 50% / 0.8), 0 0 20px hsl(180 100% 50% / 0.6), 0 0 40px hsl(180 100% 50% / 0.4);
+  }
+  .glow-box {
+    box-shadow: 0 0 20px hsl(160 100% 50% / 0.3), inset 0 0 20px hsl(160 100% 50% / 0.1);
+  }
+  .scanline {
+    @apply pointer-events-none fixed inset-0 z-50;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(0 0% 0% / 0.1) 2px, hsl(0 0% 0% / 0.1) 4px);
+  }
+  .matrix-bg {
+    background: radial-gradient(ellipse at top, hsl(160 100% 50% / 0.05) 0%, transparent 50%), radial-gradient(ellipse at bottom right, hsl(280 100% 60% / 0.05) 0%, transparent 50%), hsl(220 20% 4%);
+  }
+  .typing-cursor::after {
+    content: '█';
+    @apply animate-pulse text-primary;
+  }
+  .flag-input {
+    @apply bg-input border-2 border-border rounded-sm px-4 py-3 font-mono text-foreground w-full transition-all duration-200;
+    @apply focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none;
+  }
+  .btn-terminal {
+    @apply bg-transparent border-2 border-primary text-primary px-6 py-3 font-mono uppercase tracking-wider transition-all duration-200;
+    @apply hover:bg-primary hover:text-primary-foreground disabled:opacity-50;
+  }
+  .btn-terminal-filled {
+    @apply bg-primary text-primary-foreground border-2 border-primary px-6 py-3 font-mono uppercase tracking-wider transition-all duration-200;
+    @apply hover:bg-transparent hover:text-primary disabled:opacity-50;
+  }
+  .btn-danger {
+    @apply bg-transparent border-2 border-destructive text-destructive px-6 py-3 font-mono uppercase tracking-wider transition-all duration-200;
+    @apply hover:bg-destructive hover:text-destructive-foreground;
+  }
+  .progress-bar { @apply h-2 bg-muted rounded-full overflow-hidden; }
+  .progress-bar-fill { @apply h-full bg-gradient-to-r from-primary to-secondary transition-all duration-500; }
+  .hint-box { @apply bg-muted/50 border border-warning/30 rounded-sm p-4 text-warning/80; }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Orbitron', sans-serif; }
+  .text-glow { text-shadow: var(--glow-primary); }
+  .box-glow { box-shadow: var(--glow-primary); }
+  .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+}

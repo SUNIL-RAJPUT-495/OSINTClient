@@ -175,3 +175,16 @@
   .box-glow { box-shadow: var(--glow-primary); }
   .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
 }
+
+@layer utilities {
+  /* Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+}

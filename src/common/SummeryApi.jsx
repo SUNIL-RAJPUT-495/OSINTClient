@@ -31,6 +31,11 @@ const SummaryApi = {
     method: "GET"
   },
 
+  getroomchallengs:{
+    url:baseURL+"/api/room/get-room/:id",
+    method:"GET"
+  },
+
   // Challenge
 
 
@@ -43,7 +48,7 @@ const SummaryApi = {
   },
   // Get Challenges by Room
   getChallengesByRoom: {
-    url: baseURL + "/api/challenge/getchallenges",
+    url: baseURL + "/api/challenge/getchallenges/:id",
     method: "GET"
   }
 };

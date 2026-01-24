@@ -1,12 +1,12 @@
 import { X, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import axios from 'axios';
-import SummaryApi from '../../common/SummeryApi'; // Path check kar lena
+import SummaryApi from '../../common/SummeryApi'; 
 
-export const AddChallengeModal = ({ isOpen, onClose }) => {
+// 1. Accept roomId as a prop
+export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  // Form State
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -15,7 +15,6 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // Handle Input Change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -24,9 +23,15 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
     }));
   };
 
-  // Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Safety Check: Ensure roomId exists
+    if (!roomId) {
+        alert("Error: Room ID is missing. Please try again.");
+        return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -36,22 +41,21 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
         data: {
           title: formData.title,
           description: formData.description,
-          points: Number(formData.points), // Convert string to number
-          // Note: Backend ko shayad 'roomId' bhi chahiye hoga, 
-          // jo aap props ke through pass kar sakte hain future mein.
+          points: Number(formData.points),
+          roomId: roomId // 2. Send roomId to Backend
         },
         withCredentials: true
       });
 
       if (response.data.success) {
         console.log("Challenge Created:", response.data);
-        
-        // Reset and Close
         setFormData({ title: "", description: "", points: "" });
         onClose();
       }
     } catch (error) {
       console.error("Error creating challenge:", error);
+      // Optional: Alert user of specific error
+      alert(error.response?.data?.message || "Failed to create challenge");
     } finally {
       setIsLoading(false);
     }
@@ -74,10 +78,8 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
           <p className="text-xs text-muted-foreground">Create a new task for this room</p>
         </div>
 
-        {/* FORM START */}
         <form onSubmit={handleSubmit} className="space-y-4">
           
-          {/* Title Input */}
           <div>
             <label className="text-xs text-muted-foreground block mb-2 font-mono">
               CHALLENGE TITLE
@@ -93,7 +95,6 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Description Input */}
           <div>
             <label className="text-xs text-muted-foreground block mb-2 font-mono">
               DESCRIPTION & INSTRUCTIONS
@@ -103,13 +104,12 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              placeholder="Enter the challenge details and clues here..."
+              placeholder="Enter details..."
               className="flag-input w-full resize-none"
               required
             />
           </div>
 
-          {/* Points Input */}
           <div>
             <label className="text-xs text-muted-foreground block mb-2 font-mono">
               POINTS VALUE
@@ -126,7 +126,6 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-3 pt-4 mt-2">
             <button 
               type="button" 
@@ -140,7 +139,7 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
             <button 
               type="submit" 
               disabled={isLoading}
-              className="flex-1 py-2 rounded bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-2 rounded bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isLoading ? (
                 <>
@@ -153,8 +152,6 @@ export const AddChallengeModal = ({ isOpen, onClose }) => {
             </button>
           </div>
         </form>
-        {/* FORM END */}
-        
       </div>
     </div>
   );

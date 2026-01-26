@@ -1,44 +1,94 @@
-import { Link } from 'react-router-dom';
-import { Shield, LogOut, Target, Settings, Plus, Loader2 } from 'lucide-react'; 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shield, LogOut, Target, Settings, Plus, Loader2 } from 'lucide-react';
 import { cn } from "../lib/utils";
+import { toast } from 'react-hot-toast';
+
+import Axios from '../utils/Axios';
+import SummaryApi from '../common/SummeryApi';
+
 import { CreateRoomModal } from '../component/admin/CreateRoomModal';
-import { AddChallengeModal } from '../component/admin/AddChallengeModal';
 import { RoomCard } from '../component/RoomCard';
-import { RoomDetail } from '../component/admin/RoomDetail'; // <-- Import Corrected File
-import { getAllRooms } from '../utils/api'; 
+import { RoomDetail } from '../component/admin/RoomDetail'; 
 
 export const AdminDashboard = () => {
+  const navigate = useNavigate();
+
   const [allRooms, setAllRooms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('rooms');
-  
-  // STATE: Kaunsa room open karna hai?
-  const [selectedRoomId, setSelectedRoomId] = useState(null); 
+
+  const [selectedRoomId, setSelectedRoomId] = useState(null);
 
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
-  // Note: ChallengeModal ab RoomDetail ke andar handle ho raha hai
+  const [roomToEdit, setRoomToEdit] = useState(null); 
+
 
   const fetchRooms = async () => {
     setIsLoading(true);
     try {
-      const data = await getAllRooms();
-      if (data) setAllRooms(data.data || data);
+      const response = await Axios({
+        url: SummaryApi.getAllRooms.url,
+        method: SummaryApi.getAllRooms.method,
+        withCredentials: true
+      });
+
+      if (response.data.success) {
+        setAllRooms(response.data.data);
+      }
     } catch (error) {
       console.error("Failed to fetch rooms:", error);
+      toast.error("Could not load rooms");
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => { fetchRooms(); }, []);
+  useEffect(() => {
+    fetchRooms();
+  }, []);
 
-  const handleEditRoom = (room) => { console.log("Edit from list", room); };
-  const handleDeleteRoom = (roomId) => { console.log("Delete logic here", roomId); };
-  
+  const handleLogout = async () => {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_data');
+      localStorage.removeItem('admin_token');
+      toast.success("Logged out");
+      navigate("/");
+  };
+
+  const handleDeleteRoom = async (roomId) => {
+    if(!window.confirm("Are you sure you want to delete this room?")) return;
+
+    try {
+      const response = await Axios({
+        ...SummaryApi.deleteRoom,
+        url: SummaryApi.deleteRoom.url.replace(":id", roomId),
+      });
+
+      if (response.data.success) {
+        toast.success("Room deleted successfully");
+        fetchRooms();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to delete room");
+    }
+  };
+
+  const handleEditRoom = (room) => {
+    setRoomToEdit(room); 
+    setIsRoomModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsRoomModalOpen(false);
+    setRoomToEdit(null); 
+    fetchRooms();
+  };
+
   return (
-    <div className="min-h-screen matrix-bg relative">
-      {/* Header code same... */}
+    <div className="min-h-screen matrix-bg relative text-foreground font-sans">
+      
       <header className="border-b border-destructive/30 bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -47,27 +97,14 @@ export const AdminDashboard = () => {
                 <Shield className="w-8 h-8 text-destructive" />
               </div>
               <div>
-                <h1 className="font-display text-xl font-bold tracking-wider text-destructive">
-                  ADMIN PANEL
-                </h1>
-                <div className="text-xs text-muted-foreground">
-                  System Control Interface
-                </div>
+                <h1 className="font-display text-xl font-bold tracking-wider text-destructive">ADMIN PANEL</h1>
+                <div className="text-xs text-muted-foreground">System Control Interface</div>
               </div>
             </div>
-            
             <div className="flex items-center gap-4">
-              <Link
-                to="/"
-                className="text-sm text-muted-foreground hover:text-primary transition-colors"
-              >
-                View Site
-              </Link>
-              <button
-                className="flex items-center gap-2 text-sm text-destructive hover:text-destructive/80 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
+              <Link to="/" className="text-sm text-muted-foreground hover:text-primary transition-colors">View Site</Link>
+              <button onClick={handleLogout} className="flex items-center gap-2 text-sm text-destructive hover:text-destructive/80 transition-colors">
+                <LogOut className="w-4 h-4" /> Logout
               </button>
             </div>
           </div>
@@ -75,58 +112,56 @@ export const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Tabs */}
+        
         <div className="flex gap-4 mb-8 border-b border-border">
-          <button onClick={() => {setActiveTab('rooms'); setSelectedRoomId(null);}} className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'rooms' ? "border-primary text-primary" : "border-transparent text-muted-foreground")}>
+          <button 
+            onClick={() => { setActiveTab('rooms'); setSelectedRoomId(null); }} 
+            className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'rooms' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
+          >
             <Target className="w-4 h-4" /> Rooms & Challenges
           </button>
-          <button onClick={() => setActiveTab('settings')} className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'settings' ? "border-primary text-primary" : "border-transparent text-muted-foreground")}>
+          <button 
+            onClick={() => setActiveTab('settings')} 
+            className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'settings' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
+          >
             <Settings className="w-4 h-4" /> Settings
           </button>
         </div>
 
-        {/* --- MAIN AREA --- */}
         {activeTab === 'rooms' && (
           <div>
-            {/* 1. Header Hamesha Dikhega */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display text-xl">
-                 {selectedRoomId ? "Room Details & Challenges" : "Manage Rooms"}
+                 {selectedRoomId ? "Room Details" : "Manage Rooms"}
               </h2>
-              
-              {/* "New Room" button sirf tab dikhe jab list view ho */}
               {!selectedRoomId && (
-                <button onClick={() => setIsRoomModalOpen(true)} className="btn-terminal-filled flex items-center gap-2">
+                <button 
+                    onClick={() => { setRoomToEdit(null); setIsRoomModalOpen(true); }}
+                    className="btn-terminal-filled flex items-center gap-2"
+                >
                   <Plus className="w-4 h-4" /> New Room
                 </button>
               )}
             </div>
 
-            {/* 2. CONDITIONAL RENDERING (List vs Detail) */}
             {selectedRoomId ? (
-              
-              // --- A. SHOW DETAIL VIEW ---
               <RoomDetail 
                 roomId={selectedRoomId} 
-                onBack={() => setSelectedRoomId(null)} // Wapas list par jane ke liye
+                onBack={() => setSelectedRoomId(null)} 
               />
-
             ) : (
-
-              // --- B. SHOW LIST VIEW ---
               isLoading ? (
                 <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
               ) : allRooms.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
                   {allRooms.map((room) => (
                     <RoomCard 
                       key={room._id} 
                       room={room} 
                       type="admin" 
-                      // Is click se state change hogi aur view badal jayega
                       onClick={(id) => setSelectedRoomId(id)} 
-                      onEdit={handleEditRoom}
-                      onDelete={handleDeleteRoom}
+                      onEdit={() => handleEditRoom(room)} 
+                      onDelete={() => handleDeleteRoom(room._id)}
                     />
                   ))}
                 </div>
@@ -139,8 +174,7 @@ export const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
+       {activeTab === 'settings' && (
           <div className="max-w-2xl">
             <h2 className="font-display text-xl mb-6">Platform Settings</h2>
             
@@ -203,7 +237,12 @@ export const AdminDashboard = () => {
         )}
       </main>
 
-      <CreateRoomModal isOpen={isRoomModalOpen} onClose={() => { setIsRoomModalOpen(false); fetchRooms(); }} />
+      
+      <CreateRoomModal 
+        isOpen={isRoomModalOpen} 
+        onClose={handleCloseModal} 
+        roomData={roomToEdit}      
+      />
     </div>
   );
 };

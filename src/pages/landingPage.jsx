@@ -7,9 +7,7 @@ export const LandingPage = () => {
     <div className="min-h-screen matrix-bg">
       <TerminalHeader />
       
-      {/* Hero Section */}
       <section className="relative py-20 overflow-hidden">
-        {/* Animated Background Elements */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-20 left-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse" />
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
@@ -17,26 +15,22 @@ export const LandingPage = () => {
 
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center">
-            {/* Terminal Badge */}
             <div className="inline-flex items-center gap-2 bg-muted/50 border border-border rounded-full px-4 py-2 mb-8 animate-fade-in">
               <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
               <span className="text-sm text-muted-foreground font-mono">SYSTEM ONLINE</span>
             </div>
 
-            {/* Main Title */}
             <h1 className="font-display text-5xl md:text-7xl font-bold mb-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
               <span className="text-foreground">OSINT</span>
               <br />
               <span className="text-primary glow-text">TRAINING GROUND</span>
             </h1>
 
-            {/* Subtitle */}
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-in" style={{ animationDelay: '0.2s' }}>
               Master open-source intelligence techniques through immersive
               challenges. Track digital footprints. Uncover hidden information.
             </p>
 
-            {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
               <Link
                 to="/rooms"
@@ -54,7 +48,6 @@ export const LandingPage = () => {
               </a>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-3 gap-8 mt-16 max-w-lg mx-auto animate-fade-in" style={{ animationDelay: '0.4s' }}>
               <div>
                 <div className="text-3xl font-display text-primary">10+</div>
@@ -73,7 +66,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section id="features" className="py-20 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -120,7 +112,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* How It Works */}
       <section className="py-20 border-t border-border bg-card/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -162,7 +153,6 @@ export const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-8 border-t border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">

@@ -34,7 +34,6 @@ export const AdminLogin = () => {
 
     try {
       if (isSignUp) {
-        // ------------------ REGISTER LOGIC ------------------
         const res = await Axios({
           url: SummaryApi.CreateUser.url,
           method: SummaryApi.CreateUser.method,
@@ -51,7 +50,6 @@ export const AdminLogin = () => {
         }
 
       } else {
-        // ------------------ LOGIN LOGIC ------------------
         const res = await Axios({
             url: SummaryApi.verifyUser.url, 
             method: SummaryApi.verifyUser.method,

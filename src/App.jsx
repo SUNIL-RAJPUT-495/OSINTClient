@@ -6,19 +6,16 @@ import { AdminDashboard } from './pages/AdminDashboard';
 import { RoomDetail } from './component/admin/RoomDetail';
 import { AdminLogin } from './pages/AdminLogin';
 
-// Wrappers
 import { ProtectedRoute } from './component/ProtectedRoute';
 import { ProtectedRouteAdmin } from './component/ProtectedRoute';
 
 function App() {
   return (
     <Routes>
-      {/* --- PUBLIC ROUTES --- */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
       <Route path="/admin/login" element={<AdminLogin />} />
 
-      {/* --- USER PROTECTED ROUTES --- */}
       <Route
         path="/rooms"
         element={
@@ -37,7 +34,6 @@ function App() {
         }
       />
 
-      {/* --- ADMIN PROTECTED ROUTES --- */}
       <Route 
         path="/admin" 
         element={

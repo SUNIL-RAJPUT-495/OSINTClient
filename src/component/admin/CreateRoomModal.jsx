@@ -1,23 +1,40 @@
 import { X, ChevronDown, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast'; 
 import { cn } from "../../lib/utils"; 
-import axios from 'axios'; 
-import SummaryApi from "../../common/SummeryApi";
+import Axios from '../../utils/Axios'; 
+import SummaryApi from "../../common/SummeryApi"; 
 
-export const CreateRoomModal = ({ isOpen, onClose }) => {
-  // ... (Baki saara state aur logic same rahega) ...
+export const CreateRoomModal = ({ isOpen, onClose, roomData }) => { 
   const [isDifficultyOpen, setIsDifficultyOpen] = useState(false);
-  const [selectedDifficulty, setSelectedDifficulty] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
-    description: "", // Description state added
-    totalChallenges: "",
-    points: ""
+    description: "", 
+    difficulty: "",
+    pointsReward: "" 
   });
 
   const difficultyOptions = ["Beginner", "Intermediate", "Advanced", "Expert"];
+
+  useEffect(() => {
+    if (roomData && isOpen) {
+        setFormData({
+            name: roomData.name || "",
+            description: roomData.description || "",
+            difficulty: roomData.difficulty || "",
+            pointsReward: roomData.pointsReward || ""
+        });
+    } else if (!roomData && isOpen) {
+        setFormData({
+            name: "",
+            description: "", 
+            difficulty: "",
+            pointsReward: ""
+        });
+    }
+  }, [roomData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -26,42 +43,50 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleDifficultySelect = (option) => {
+      setFormData(prev => ({ ...prev, difficulty: option }));
+      setIsDifficultyOpen(false);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedDifficulty) { alert("Please select a difficulty level"); return; }
     setIsLoading(true);
 
     try {
-      const response = await axios({
-        method: SummaryApi.createRoom.method,
-        url: SummaryApi.createRoom.url,
-        data: {
-          name: formData.name,
-          description: formData.description, 
-          totalChallenges: Number(formData.totalChallenges), 
-          totalPoints: Number(formData.points), 
-          difficulty: selectedDifficulty
-        },
-        withCredentials: true 
-      });
+        let apiConfig;
+        
+        if (roomData) {
+            apiConfig = {
+                url: SummaryApi.updateRoom.url.replace(":id", roomData._id),
+                method: SummaryApi.updateRoom.method,
+                data: formData
+            };
+        } else {
+            apiConfig = {
+                url: SummaryApi.createRoom.url,
+                method: SummaryApi.createRoom.method,
+                data: formData
+            };
+        }
 
-      if (response.data.success) {
-        setFormData({ name: "", description: "", totalChallenges: "", points: "" });
-        setSelectedDifficulty("");
-        onClose();
-      }
-    } catch (error) {
-      console.error("Error creating room:", error);
-      alert(error.response?.data?.message || "Error creating room");
+        const res = await Axios(apiConfig);
+
+        if(res.data.success) {
+            toast.success(roomData ? "Room Updated Successfully" : "Room Created Successfully");
+            onClose(); 
+        }
+
+    } catch(err) {
+        console.error(err);
+        toast.error(err.response?.data?.message || "Operation failed");
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animation-fade-in p-4">
       
-      {/* CHANGE: Added 'no-scrollbar' class here */}
       <div className="terminal-card w-full max-w-md max-h-[90vh] overflow-y-auto no-scrollbar p-4 sm:p-6 relative border border-primary/50 shadow-lg shadow-primary/10">
         
         <button 
@@ -73,8 +98,12 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
         </button>
 
         <div className="mb-6">
-          <h3 className="text-xl font-display font-bold text-primary">Create New Room</h3>
-          <p className="text-xs text-muted-foreground">Add a new environment for challenges</p>
+          <h3 className="text-xl font-display font-bold text-primary">
+            {roomData ? "Edit Room" : "Create New Room"}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {roomData ? "Update room details and configurations" : "Add a new environment for challenges"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,34 +122,19 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
             />
           </div>
 
-          {/* Description Input */}
+          {/* Description */}
           <div>
             <label className="text-xs text-muted-foreground block mb-2 font-mono">
-              DESCRIPTION & INSTRUCTIONS
+              DESCRIPTION
             </label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              placeholder="Enter the challenge details and clues here..."
+              placeholder="Enter details..."
               className="flag-input w-full resize-none"
               required
-            />
-          </div>
-          
-          {/* Total Challenges */}
-          <div>
-            <label className="text-xs text-muted-foreground block mb-2 font-mono">TOTAL CHALLENGES</label>
-            <input 
-              type="number" 
-              name="totalChallenges"
-              value={formData.totalChallenges}
-              onChange={handleChange}
-              placeholder="0" 
-              className="flag-input w-full"
-              required
-              min="0"
             />
           </div>
           
@@ -132,8 +146,8 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
               onClick={() => setIsDifficultyOpen(!isDifficultyOpen)}
               className="flag-input w-full flex items-center justify-between text-left"
             >
-              <span className={selectedDifficulty ? "text-foreground" : "text-muted-foreground"}>
-                {selectedDifficulty || "Select Difficulty..."}
+              <span className={formData.difficulty ? "text-foreground" : "text-muted-foreground"}>
+                {formData.difficulty || "Select Difficulty..."}
               </span>
               <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", isDifficultyOpen && "rotate-180")} />
             </button>
@@ -143,7 +157,7 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
                 {difficultyOptions.map((option) => (
                   <div
                     key={option}
-                    onClick={() => { setSelectedDifficulty(option); setIsDifficultyOpen(false); }}
+                    onClick={() => handleDifficultySelect(option)}
                     className="px-4 py-2 cursor-pointer text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors border-b border-white/5 last:border-0"
                   >
                     {option}
@@ -158,8 +172,8 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
             <label className="text-xs text-muted-foreground block mb-2 font-mono">POINTS REWARD</label>
             <input 
               type="number" 
-              name="points"
-              value={formData.points}
+              name="pointsReward" 
+              value={formData.pointsReward}
               onChange={handleChange}
               placeholder="0" 
               className="flag-input w-full" 
@@ -183,7 +197,7 @@ export const CreateRoomModal = ({ isOpen, onClose }) => {
               disabled={isLoading}
               className="flex-1 py-2 rounded bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Creating...</> : "Create Room"}
+              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing...</> : (roomData ? "Update Room" : "Create Room")}
             </button>
           </div>
         </form>

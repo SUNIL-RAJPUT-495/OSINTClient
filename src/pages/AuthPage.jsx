@@ -35,7 +35,6 @@ export const AuthPage = () => {
 
     try {
       if (isSignUp) {
-        // ------------------ REGISTER LOGIC ------------------
         const res = await Axios({
           url: SummaryApi.CreateUser.url,
           method: SummaryApi.CreateUser.method,
@@ -52,7 +51,6 @@ export const AuthPage = () => {
         }
 
       } else {
-        // ------------------ LOGIN LOGIC ------------------
         const res = await Axios({
             url: SummaryApi.verifyUser.url, 
             method: SummaryApi.verifyUser.method,

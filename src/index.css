@@ -3,11 +3,9 @@
 @import "tailwindcss";
 
 @theme {
-  /* Fonts - Same to same names */
   --font-mono: 'JetBrains Mono', monospace;
   --font-display: 'Orbitron', sans-serif;
 
-  /* Colors mapping - v4 requires --color-* syntax */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-card: hsl(var(--card));
@@ -32,21 +30,18 @@
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
 
-  /* Custom terminal tokens */
   --color-terminal-green: hsl(var(--terminal-green));
   --color-terminal-cyan: hsl(var(--terminal-cyan));
   --color-terminal-purple: hsl(var(--terminal-purple));
   --color-terminal-red: hsl(var(--terminal-red));
   --color-terminal-yellow: hsl(var(--terminal-yellow));
 
-  /* Animations - Exact timing as your code */
   --animate-flicker: flicker 0.15s infinite;
   --animate-glitch: glitch 2s infinite;
   --animate-typing: typing 3.5s steps(40, end);
   --animate-scan: scan 8s linear infinite;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 
-  /* Keyframes inside theme so they are registered */
   @keyframes flicker {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.8; }
@@ -72,7 +67,6 @@
   }
 }
 
-/* Base Variables */
 :root {
   --background: 220 20% 4%;
   --foreground: 160 100% 70%;
@@ -117,7 +111,6 @@
   ::selection { @apply bg-primary text-primary-foreground; }
 }
 
-/* Aapka saara components wala logic bilkul same */
 @layer components {
   .terminal-card {
     @apply bg-card border border-border rounded-sm relative overflow-hidden;
@@ -177,14 +170,12 @@
 }
 
 @layer utilities {
-  /* Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  /* IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
   }
 }

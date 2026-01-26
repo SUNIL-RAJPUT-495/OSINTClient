@@ -1,23 +1,20 @@
 import { Shield, Target, Trophy, Edit, Trash2, ChevronRight } from 'lucide-react';
 import { cn } from "../lib/utils";
 
-// Link import hata diya kyunki hum div use karenge dashboard switching ke liye
-// import { Link } from 'react-router-dom'; 
 
 export const RoomCard = ({ room, type = "user", onEdit, onDelete, onClick }) => {
   
-  // Logic same rahega...
   const challengeCount = room.challenges?.length || 0;
   const totalPoints = room.challenges?.reduce((sum, ch) => sum + (Number(ch.points)||0), 0) || 0;
   
   const isActive = room.isActive !== false; 
   const isAdmin = type === 'admin';
 
-  // --- HELPER FUNCTION FOR CLICK ---
+
   const handleCardClick = (e) => {
       e.preventDefault();
       if (onClick) {
-          onClick(room._id); // Parent ko ID bhejo
+          onClick(room._id); 
       }
   };
 
@@ -29,7 +26,7 @@ export const RoomCard = ({ room, type = "user", onEdit, onDelete, onClick }) => 
   };
 
   return (
-    <div // Link ki jagah div use kiya taaki page reload na ho
+    <div 
       onClick={handleCardClick}
       className={cn(
         "terminal-card group block transition-all duration-300 relative h-full flex flex-col justify-between cursor-pointer", // cursor-pointer add kiya
@@ -66,7 +63,6 @@ export const RoomCard = ({ room, type = "user", onEdit, onDelete, onClick }) => 
             </div>
          </div>
          
-         {/* Edit/Delete Buttons logic... (OnClick par stopPropagation zaroori hai) */}
          {isAdmin && (
             <div className="flex gap-2 mt-2 pt-2 border-t border-border/50">
                 <button onClick={(e) => { e.stopPropagation(); onEdit(room); }} className="flex-1 py-1 text-xs border border-primary/30 text-primary hover:bg-primary/10">EDIT</button>

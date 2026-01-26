@@ -3,7 +3,6 @@ import { useState } from 'react';
 import axios from 'axios';
 import SummaryApi from '../../common/SummeryApi'; 
 
-// 1. Accept roomId as a prop
 export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +25,6 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Safety Check: Ensure roomId exists
     if (!roomId) {
         alert("Error: Room ID is missing. Please try again.");
         return;
@@ -42,7 +40,7 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
           title: formData.title,
           description: formData.description,
           points: Number(formData.points),
-          roomId: roomId // 2. Send roomId to Backend
+          roomId: roomId 
         },
         withCredentials: true
       });
@@ -54,7 +52,6 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
       }
     } catch (error) {
       console.error("Error creating challenge:", error);
-      // Optional: Alert user of specific error
       alert(error.response?.data?.message || "Failed to create challenge");
     } finally {
       setIsLoading(false);

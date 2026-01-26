@@ -41,13 +41,35 @@ export const AdminDashboard = () => {
       {/* Header code same... */}
       <header className="border-b border-destructive/30 bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
-           {/* ... Header Content ... */}
-           <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Shield className="w-8 h-8 text-destructive" />
-              <h1 className="font-display text-xl font-bold tracking-wider text-destructive">ADMIN PANEL</h1>
+              <div className="relative">
+                <Shield className="w-8 h-8 text-destructive" />
+              </div>
+              <div>
+                <h1 className="font-display text-xl font-bold tracking-wider text-destructive">
+                  ADMIN PANEL
+                </h1>
+                <div className="text-xs text-muted-foreground">
+                  System Control Interface
+                </div>
+              </div>
             </div>
-            <Link to="/" className="text-sm text-muted-foreground hover:text-primary">View Site</Link>
+            
+            <div className="flex items-center gap-4">
+              <Link
+                to="/"
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                View Site
+              </Link>
+              <button
+                className="flex items-center gap-2 text-sm text-destructive hover:text-destructive/80 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -118,7 +140,67 @@ export const AdminDashboard = () => {
         )}
 
         {/* Settings Tab */}
-        {activeTab === 'settings' && <div>Settings Content...</div>}
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl">
+            <h2 className="font-display text-xl mb-6">Platform Settings</h2>
+            
+            <div className="terminal-card p-6 space-y-6">
+              <div>
+                <label className="text-xs text-muted-foreground block mb-2">
+                  SITE NAME
+                </label>
+                <input
+                  type="text"
+                  defaultValue="OSINT CTF"
+                  className="flag-input"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground block mb-2">
+                  WELCOME MESSAGE
+                </label>
+                <textarea
+                  defaultValue="Welcome to the OSINT Challenge Platform. Test your open-source intelligence skills."
+                  rows={3}
+                  className="flag-input resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-muted-foreground block mb-2">
+                  COMPLETION MESSAGE
+                </label>
+                <textarea
+                  defaultValue="Congratulations! You have completed all challenges. Your skills are impressive."
+                  rows={3}
+                  className="flag-input resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-between p-4 bg-muted/30 rounded">
+                <div>
+                  <h4 className="font-semibold">Maintenance Mode</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Disable public access temporarily
+                  </p>
+                </div>
+                <button className="w-12 h-6 rounded-full bg-muted border border-border relative">
+                  <span className="absolute left-1 top-1 w-4 h-4 rounded-full bg-muted-foreground transition-transform" />
+                </button>
+              </div>
+
+              <div className="pt-4 border-t border-border">
+                <button className="btn-danger w-full">
+                  Reset All Progress Data
+                </button>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  This will clear all user session progress
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       <CreateRoomModal isOpen={isRoomModalOpen} onClose={() => { setIsRoomModalOpen(false); fetchRooms(); }} />

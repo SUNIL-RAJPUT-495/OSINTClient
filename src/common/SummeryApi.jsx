@@ -1,3 +1,4 @@
+import { updateRoom } from "../../../backend/controllers/room.controller";
 
 export const baseURL = "http://localhost:8080";
 
@@ -34,6 +35,16 @@ const SummaryApi = {
   getroomchallengs:{
     url:baseURL+"/api/room/get-room/:id",
     method:"GET"
+  },
+
+  deleteRoom:{
+    url:baseURL+"/api/room/delete-room/:id",
+    method:"DELETE"
+  },
+
+  updateRoom:{
+    url:baseURL+"/api/room/update-room/:id",
+    method:"PUT"
   },
 
   // Challenge

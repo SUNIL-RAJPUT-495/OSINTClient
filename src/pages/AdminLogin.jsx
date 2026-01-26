@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Eye, EyeOff, AlertTriangle, CheckCircle } from 'lucide-react';
-import { TerminalHeader } from "../component/TerminalHeader";
 import Axios from '../utils/Axios';
-import SummaryApi from "../common/SummeryApi"; 
+import SummaryApi from "../common/SummeryApi";
 
-export const AuthPage = () => {
+import {  Eye, EyeOff, AlertTriangle, CheckCircle,Lock } from 'lucide-react';
+
+export const AdminLogin = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,8 +16,7 @@ export const AuthPage = () => {
     fullName: '',
     mobileNumber: '',
     email: '',
-    password: '',
-    accessCode: '', 
+    password: '', 
   });
 
   const navigate = useNavigate();
@@ -39,7 +38,7 @@ export const AuthPage = () => {
         const res = await Axios({
           url: SummaryApi.CreateUser.url,
           method: SummaryApi.CreateUser.method,
-          data: { ...formData, role: 'customer' }
+          data: { ...formData, role: 'admin' }
         });
 
         if (res.data.success) {
@@ -59,8 +58,7 @@ export const AuthPage = () => {
             data: { 
                 email: formData.email, 
                 password: formData.password,
-                accessCode: formData.accessCode,
-                role:"customer"
+                role:"admin"
             }
         });
 
@@ -91,27 +89,21 @@ export const AuthPage = () => {
     }
   };
   return (
-    <div className="min-h-screen matrix-bg flex flex-col">
-      <TerminalHeader />
-      
-      <main className="flex-1 flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="terminal-card overflow-hidden">
-            {/* Header */}
-            <div className="border-b border-border p-6 bg-muted/30 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/20 flex items-center justify-center">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <h1 className="font-display text-2xl mb-2">
-                {isSignUp ? 'CREATE ACCOUNT' : 'ACCESS PORTAL'}
-              </h1>
-              <p className="text-muted-foreground text-sm">
-                {isSignUp ? 'Register to begin your OSINT training' : 'Enter your credentials to continue'}
-              </p>
-            </div>
+    <div className="min-h-screen matrix-bg flex items-center justify-center p-4">
+      <div className="terminal-card max-w-md w-full">
+        {/* Header */}
+        <div className="border-b border-border p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-destructive/20 flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-8 h-8 text-destructive" />
+          </div>
+          <h1 className="font-display text-2xl text-destructive">RESTRICTED ACCESS</h1>
+          <p className="text-muted-foreground text-sm mt-2">
+            Admin authentication required
+          </p>
+        </div>
 
-            {/* Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        {/* Form */}
+         <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {isSignUp && (
                 <>
                   <div>
@@ -172,18 +164,7 @@ export const AuthPage = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs text-muted-foreground block mb-1">ACCESS CODE</label>
-                <input
-                  type="text"
-                  value={formData.accessCode}
-                  onChange={(e) => handleChange('accessCode', e.target.value)}
-                  className="flag-input"
-                  placeholder="Enter access code"
-                  disabled={isLoading}
-                />
-                <p className="text-xs text-muted-foreground mt-1">Contact your administrator for access</p>
-              </div>
+              
 
               {error && (
                 <div className="flex items-center gap-2 text-destructive text-sm p-3 bg-destructive/10 rounded border border-destructive/30">
@@ -220,16 +201,14 @@ export const AuthPage = () => {
                 </button>
               </div>
             </form>
-          </div>
 
-          <div className="mt-6 p-4 bg-muted/20 border border-border rounded text-center">
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              This platform uses fictional identities for educational purposes only.
-              No real individuals or accounts are targeted.
-            </p>
-          </div>
+        {/* Footer */}
+        <div className="border-t border-border p-4">
+          <p className="text-xs text-muted-foreground text-center">
+            Unauthorized access attempts will be logged
+          </p>
         </div>
-      </main>
+      </div>
     </div>
   );
 };

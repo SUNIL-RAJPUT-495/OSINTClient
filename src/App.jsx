@@ -2,23 +2,51 @@ import { Routes, Route } from 'react-router-dom';
 import { LandingPage } from "./pages/landingPage";
 import { AuthPage } from './pages/AuthPage';
 import { RoomsPage } from './pages/RoomsPage';
-import { ProtectedRoute } from './component/ProtectedRoute';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { RoomDetail } from './component/admin/RoomDetail';
+import { AdminLogin } from './pages/AdminLogin';
+
+// Wrappers
+import { ProtectedRoute } from './component/ProtectedRoute';
+import { ProtectedRouteAdmin } from './component/ProtectedRoute';
 
 function App() {
   return (
-
     <Routes>
+      {/* --- PUBLIC ROUTES --- */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/auth" element={<AuthPage />} />
+      <Route path="/admin/login" element={<AdminLogin />} />
+
+      {/* --- USER PROTECTED ROUTES --- */}
       <Route
         path="/rooms"
         element={
-          <ProtectedRoute> <RoomsPage /></ProtectedRoute>
-
+          <ProtectedRoute>
+             <RoomsPage />
+          </ProtectedRoute>
         }
       />
-      <Route path="/admin" element={<AdminDashboard />} />
+      
+      <Route
+        path="/room/:id"
+        element={
+          <ProtectedRoute>
+             <RoomDetail />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* --- ADMIN PROTECTED ROUTES --- */}
+      <Route 
+        path="/admin" 
+        element={
+          <ProtectedRouteAdmin>
+             <AdminDashboard />
+          </ProtectedRouteAdmin>
+        } 
+      />
+      
     </Routes>
   );
 }

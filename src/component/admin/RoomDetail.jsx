@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Edit, Trash2, Eye, EyeOff, Plus, ArrowLeft, Loader2 } from 'lucide-react';
-import { cn } from "../../lib/utils";
-import SummaryApi from '../../common/SummeryApi'; // Spelling check karein (Summary vs Summery)
+import { baseURL } from '../../common/SummeryApi';
 import { AddChallengeModal } from './AddChallengeModal';
 import Axios from '../../utils/Axios';
+import { cn } from '../../lib/utils';
 
 export const RoomDetail = ({ roomId, onBack }) => {
 
@@ -15,18 +15,16 @@ export const RoomDetail = ({ roomId, onBack }) => {
   const fetchRoomDetails = async () => {
     try {
       setLoading(true);
-      const requestUrl = `http://localhost:8080/api/room/get-room/${roomId}`;
-      
+      const requestUrl = `${baseURL}/api/room/get-room/${roomId}`;
+
       const response = await Axios({
         url: requestUrl,
-        method: SummaryApi.getroomchallengs.method,
+        method: 'get',
         withCredentials: true,
       });
 
-      console.log("API Response:", response.data); // Console check karein
-
       if (response.data.success) {
-        setRoom(response.data.data); // Data set hote hi list render ho jayegi
+        setRoom(response.data.data);
       }
     } catch (error) {
       console.error("Error fetching room:", error);
@@ -39,13 +37,20 @@ export const RoomDetail = ({ roomId, onBack }) => {
     if (roomId) fetchRoomDetails();
   }, [roomId]);
 
+  // 
+  // 1. LOADING STATE CHECK (Must be first)
   if (loading) return <div className="h-64 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
-  if (!room) return <div>Room not found.</div>;
+  
+  // 2. NULL CHECK (Must be second)
+  if (!room) return <div className="text-white p-4">Room not found.</div>;
+
+  // 3. CALCULATION (Safe to do here because we know 'room' exists)
+  const totalPoints = room.challenges?.reduce((sum, ch) => sum + (Number(ch.points)||0), 0) || 0;
 
   return (
     <div className="space-y-4 animation-fade-in">
-
-      {/* Back Button */}
+      
+      {/* BACK BUTTON */}
       <button
         onClick={onBack}
         className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-4"
@@ -53,93 +58,90 @@ export const RoomDetail = ({ roomId, onBack }) => {
         <ArrowLeft className="w-4 h-4" /> Back to List
       </button>
 
-      {/* --- ROOM INFO CARD --- */}
+      {/* MAIN CARD */}
       <div className="terminal-card p-4">
+        
+        {/* ROOM HEADER INFO */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className={cn(
-              "w-10 h-10 rounded flex items-center justify-center",
-              room.isActive ? "bg-success/20" : "bg-muted"
-            )}>
-              {room.isActive ? (
-                <Eye className="w-5 h-5 text-success" />
-              ) : (
-                <EyeOff className="w-5 h-5 text-muted-foreground" />
-              )}
+            <div className="flex items-center gap-4">
+                <div className={cn(
+                    "w-10 h-10 rounded flex items-center justify-center",
+                    room.isActive !== false ? "bg-success/20" : "bg-muted"
+                )}>
+                    {room.isActive !== false ? (
+                        <Eye className="w-5 h-5 text-success" />
+                    ) : (
+                        <EyeOff className="w-5 h-5 text-muted-foreground" />
+                    )}
+                </div>
+                <div>
+                    <h3 className="font-display text-lg">{room.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                        {/* Display Calculated Points Here */}
+                        {room.challenges?.length || 0} challenges • {totalPoints} points
+                    </p>
+                </div>
             </div>
-            <div>
-              <h3 className="font-display">{room.name}</h3>
-              <p className="text-sm text-muted-foreground">
-                {/* YAHAN SE LIST COUNT AATA HAI */}
-                {room.challenges?.length || 0} challenges • {room.pointsReward} points
-              </p>
+            
+            <div className="flex items-center gap-2">
+                <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
+                    <Edit className="w-4 h-4" />
+                </button>
+                <button className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                </button>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
-              <Edit className="w-4 h-4" />
-            </button>
-            <button className="p-2 text-muted-foreground hover:text-destructive transition-colors">
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
         </div>
 
-        {/* --- CHALLENGES LIST SECTION --- */}
+        {/* --- CHALLENGES LIST (Compact Style) --- */}
         <div className="mt-4 pt-4 border-t border-border">
-          <h4 className="text-xs text-muted-foreground mb-2">CHALLENGES</h4>
+            <h4 className="text-xs text-muted-foreground mb-2">CHALLENGES</h4>
+            
+            <div className="space-y-2">
+                {room.challenges?.map((chal, idx) => (
+                    <div
+                        key={chal._id}
+                        className="flex items-center justify-between p-2 bg-muted/30 rounded"
+                    >
+                        <div className="flex items-center gap-3">
+                            <span className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
+                                {idx + 1}
+                            </span>
+                            <span className="text-sm">{chal.title}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-4">
+                            <span className="text-xs text-secondary">{chal.points} pts</span>
+                            <button className="text-muted-foreground hover:text-primary transition-colors">
+                                <Edit className="w-3 h-3" />
+                            </button>
+                        </div>
+                    </div>
+                ))}
 
-          <div className="space-y-2">
-            {/* LOGIC: Yahan 'room.challenges' array map ho raha hai.
-                Agar Backend ne populate karke bheja hai, to ye list dikhegi.
-            */}
-            {room.challenges?.map((challenge, index) => (
-              <div
-                key={challenge._id}
-                className="flex items-center justify-between p-2 bg-muted/30 rounded hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="w-6 h-6 rounded bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                    {index + 1}
-                  </span>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{challenge.title}</span>
-                    <span className="text-xs text-muted-foreground line-clamp-1">{challenge.description}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-secondary font-mono">{challenge.points} pts</span>
-                  <button className="text-muted-foreground hover:text-primary transition-colors">
-                    <Edit className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            ))}
+                {(!room.challenges || room.challenges.length === 0) && (
+                    <p className="text-xs text-muted-foreground italic p-1">No challenges added yet.</p>
+                )}
+            </div>
 
-            {(!room.challenges || room.challenges.length === 0) && (
-              <p className="text-xs text-muted-foreground italic py-2">No challenges added yet.</p>
-            )}
-          </div>
-
-          {/* Add Challenge Button */}
-          <button
-            onClick={() => setIsChallengeModalOpen(true)}
-            className="mt-3 text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
-          >
-            <Plus className="w-3 h-3" />
-            Add Challenge
-          </button>
+            {/* Simple Text Button */}
+            <button
+                onClick={() => setIsChallengeModalOpen(true)}
+                className="mt-3 text-sm text-primary hover:text-primary/80 transition-colors flex items-center gap-1"
+            >
+                <Plus className="w-3 h-3" />
+                Add Challenge
+            </button>
         </div>
+
       </div>
 
-      {/* Modal Integration */}
       <AddChallengeModal
         isOpen={isChallengeModalOpen}
         roomId={roomId}
         onClose={() => {
             setIsChallengeModalOpen(false);
-            fetchRoomDetails(); // FIX 2: Modal band hone par data refresh karein
+            fetchRoomDetails();
         }}
       />
     </div>

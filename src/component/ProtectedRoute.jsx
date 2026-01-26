@@ -15,3 +15,20 @@ export const ProtectedRoute = ({ children }) => {
 
   return children;
 };
+
+
+export const ProtectedRouteAdmin= ({ children }) => {
+  const location = useLocation();
+  const token = localStorage.getItem('access_token');
+
+ 
+
+  if (!token || token === "undefined" || token === "null" || token === "") {
+  
+    localStorage.removeItem('access_token');
+   
+    return <Navigate to="/admin/login" state={{ from: location }} replace />;
+  }
+
+  return children;
+};

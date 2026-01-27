@@ -1,6 +1,6 @@
 
 
-export const baseURL = "https://osin-tserver.vercel.app/";
+export const baseURL = "https://osin-tserver.vercel.app";
 
 const SummaryApi = {
   //  User

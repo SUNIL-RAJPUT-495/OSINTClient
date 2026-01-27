@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Target, Trophy, Loader2, Flag, AlertCircle } from 'lucide-react';
+import { Target, Trophy, Loader2, Flag, AlertCircle, Lightbulb } from 'lucide-react'; // Lightbulb icon add kiya
 import { cn } from "../lib/utils";
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummeryApi';
 import { toast } from 'react-hot-toast';
 
 export const ChallengeView = () => {
- const { id } = useParams(); 
+  const { id } = useParams(); 
   const navigate = useNavigate();
 
   const [roomData, setRoomData] = useState(null);
@@ -16,8 +16,11 @@ export const ChallengeView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [flagInput, setFlagInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Hint toggle state
+  const [showHint, setShowHint] = useState(false);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchRoomDetails = async () => {
       try {
         const response = await Axios({
@@ -41,6 +44,11 @@ export const ChallengeView = () => {
     if(id) fetchRoomDetails();
   }, [id, navigate]);
 
+  // Reset hint when challenge changes
+  useEffect(() => {
+    setShowHint(false);
+  }, [currentIndex]);
+
   const currentChallenge = challenges[currentIndex];
 
   const handleFlagSubmit = async (e) => {
@@ -49,6 +57,7 @@ export const ChallengeView = () => {
 
     setIsSubmitting(true);
     try {
+        // Yahan aap apna backend verification API call karenge
         toast.success("Correct Flag! Challenge Deciphered.");
         setFlagInput("");
     } catch (error) {
@@ -138,15 +147,37 @@ export const ChallengeView = () => {
                   </p>
                 </div>
 
+                {currentChallenge.hint && (
+                  <div className="mb-6">
+                    {!showHint ? (
+                      <button 
+                        onClick={() => setShowHint(true)}
+                        className="flex items-center gap-2 text-xs font-mono text-primary/70 hover:text-primary transition-colors bg-primary/5 px-3 py-2 rounded border border-primary/20 border-dashed"
+                      >
+                        <Lightbulb className="w-4 h-4" /> ACCESS INTEL HINT
+                      </button>
+                    ) : (
+                      <div className="bg-yellow-500/5 border border-yellow-500/20 p-4 rounded animate-in fade-in slide-in-from-top-2 duration-300">
+                        <h4 className="text-[10px] font-mono text-yellow-500 uppercase mb-1 flex items-center gap-1">
+                          <Lightbulb className="w-3 h-3" /> Intel Hint:
+                        </h4>
+                        <p className="text-sm italic text-yellow-200/80">
+                          {currentChallenge.hint}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Submission Area */}
                 <div className="mt-10 pt-6 border-t border-border/50">
-                   <label className="block text-xs font-mono text-primary mb-3">SUBMIT ANSWARE</label>
+                   <label className="block text-xs font-mono text-primary mb-3 uppercase tracking-widest text-[10px]">Submit Evidence</label>
                    <form onSubmit={handleFlagSubmit} className="flex gap-2">
                       <div className="relative flex-1">
                         <Flag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <input 
                           type="text"
-                          placeholder="ANSWARE"
+                          placeholder="ENTER FLAG OR ANSWER"
                           className="flag-input w-full pl-10"
                           value={flagInput}
                           onChange={(e) => setFlagInput(e.target.value)}
@@ -154,7 +185,7 @@ export const ChallengeView = () => {
                       </div>
                       <button 
                         disabled={isSubmitting}
-                        className="btn-terminal-filled px-8 flex items-center gap-2"
+                        className="btn-terminal-filled px-8 flex items-center gap-2 uppercase font-mono text-xs tracking-widest"
                       >
                         {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "SUBMIT"}
                       </button>
@@ -169,14 +200,14 @@ export const ChallengeView = () => {
                     onClick={() => setCurrentIndex(prev => prev - 1)}
                     className="text-xs font-mono text-muted-foreground hover:text-primary disabled:opacity-30 transition-colors"
                  >
-                    &lt; PREVIOUS SOURCE
+                    &lt; PREV_NODE
                  </button>
                  <button 
                     disabled={currentIndex === challenges.length - 1}
                     onClick={() => setCurrentIndex(prev => prev + 1)}
                     className="text-xs font-mono text-muted-foreground hover:text-primary disabled:opacity-30 transition-colors"
                  >
-                    NEXT SOURCE &gt;
+                    NEXT_NODE &gt;
                  </button>
               </div>
             </>

@@ -9,6 +9,8 @@ import { AdminLogin } from './pages/AdminLogin';
 import { ProtectedRoute } from './component/ProtectedRoute';
 import { ProtectedRouteAdmin } from './component/ProtectedRoute';
 
+import { ChallengeView } from './component/challenges';
+
 function App() {
   return (
     <Routes>
@@ -30,6 +32,15 @@ function App() {
         element={
           <ProtectedRoute>
              <RoomDetail />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/challange/:id"
+        element={
+          <ProtectedRoute>
+             <ChallengeView/>
           </ProtectedRoute>
         }
       />

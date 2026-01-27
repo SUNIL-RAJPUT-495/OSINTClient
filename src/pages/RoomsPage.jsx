@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TerminalHeader } from '../component/TerminalHeader';
 import { RoomCard } from '../component/RoomCard';
 import { Target, Filter, Loader2 } from 'lucide-react'; 
@@ -8,6 +9,7 @@ import SummaryApi from '../common/SummeryApi';
 export const RoomsPage = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchRooms = async () => {
     try {
@@ -31,6 +33,10 @@ export const RoomsPage = () => {
   useEffect(() => {
     fetchRooms();
   }, []);
+
+  const handleRoomClick = (roomId) => {
+    navigate(`/challange/${roomId}`);
+  };
 
   return (
     <div className="min-h-screen matrix-bg">
@@ -71,6 +77,7 @@ export const RoomsPage = () => {
                   key={room._id} 
                   room={room}
                   type="user" 
+                  onClick={() => handleRoomClick(room._id)} 
                 />
               ))
             ) : (
@@ -88,5 +95,5 @@ export const RoomsPage = () => {
         )}
       </main>
     </div>
-  );
+  );  
 };

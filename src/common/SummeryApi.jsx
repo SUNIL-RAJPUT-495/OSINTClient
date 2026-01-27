@@ -16,6 +16,12 @@ const SummaryApi = {
     url: baseURL + "/api/user/verify-user",     
     method: "POST"
   },
+  // getUser
+
+  getuser: {
+    url:baseURL+"/api/user/get-user",
+    method:"get"
+  },
   // Room
 
 

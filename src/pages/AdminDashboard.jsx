@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, LogOut, Target, Settings, Plus, Loader2 } from 'lucide-react';
+import { Shield, LogOut, Target, Settings, Plus, Loader2, Users, Trash2, Mail } from 'lucide-react';
 import { cn } from "../lib/utils";
 import { toast } from 'react-hot-toast';
 
@@ -9,20 +9,21 @@ import SummaryApi from '../common/SummeryApi';
 
 import { CreateRoomModal } from '../component/admin/CreateRoomModal';
 import { RoomCard } from '../component/RoomCard';
-import { RoomDetail } from '../component/admin/RoomDetail'; 
+import { RoomDetail } from '../component/admin/RoomDetail';
+
+import {UserDetail} from '../component/admin/userdetail'
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const [allRooms, setAllRooms] = useState([]);
+  const [allUsers, setAllUsers] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('rooms');
 
   const [selectedRoomId, setSelectedRoomId] = useState(null);
-
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
-  const [roomToEdit, setRoomToEdit] = useState(null); 
-
+  const [roomToEdit, setRoomToEdit] = useState(null);
 
   const fetchRooms = async () => {
     setIsLoading(true);
@@ -32,7 +33,6 @@ export const AdminDashboard = () => {
         method: SummaryApi.getAllRooms.method,
         withCredentials: true
       });
-
       if (response.data.success) {
         setAllRooms(response.data.data);
       }
@@ -44,58 +44,74 @@ export const AdminDashboard = () => {
     }
   };
 
+  const fetchUsers = async () => {
+    
+    try{
+      const response = await Axios({
+        url: SummaryApi.getuser.url, 
+        method: SummaryApi.getuser.method,
+        withCredentials: true
+      });
+      console.log(response.data.data)
+    if (response.data.success) {
+        setAllUsers(response.data.data); 
+      }
+    }
+   catch (err) {
+      console.error("Failed to fetch users:", err);
+      toast.error("Could not load users list");
+    }
+  };
+
   useEffect(() => {
     fetchRooms();
+    fetchUsers();
   }, []);
 
   const handleLogout = async () => {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user_data');
-      localStorage.removeItem('admin_token');
-      toast.success("Logged out");
-      navigate("/");
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_data');
+    localStorage.removeItem('admin_token');
+    toast.success("Logged out");
+    navigate("/");
   };
 
   const handleDeleteRoom = async (roomId) => {
-    if(!window.confirm("Are you sure you want to delete this room?")) return;
-
+    if (!window.confirm("Are you sure you want to delete this room?")) return;
     try {
       const response = await Axios({
         ...SummaryApi.deleteRoom,
         url: SummaryApi.deleteRoom.url.replace(":id", roomId),
       });
-
       if (response.data.success) {
         toast.success("Room deleted successfully");
         fetchRooms();
       }
     } catch (err) {
-      console.error(err);
       toast.error(err.response?.data?.message || "Failed to delete room");
     }
   };
 
   const handleEditRoom = (room) => {
-    setRoomToEdit(room); 
+    setRoomToEdit(room);
     setIsRoomModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsRoomModalOpen(false);
-    setRoomToEdit(null); 
+    setRoomToEdit(null);
     fetchRooms();
   };
 
   return (
     <div className="min-h-screen matrix-bg relative text-foreground font-sans">
       
+      {/* Header */}
       <header className="border-b border-destructive/30 bg-card/50 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Shield className="w-8 h-8 text-destructive" />
-              </div>
+              <Shield className="w-8 h-8 text-destructive" />
               <div>
                 <h1 className="font-display text-xl font-bold tracking-wider text-destructive">ADMIN PANEL</h1>
                 <div className="text-xs text-muted-foreground">System Control Interface</div>
@@ -113,12 +129,19 @@ export const AdminDashboard = () => {
 
       <main className="container mx-auto px-4 py-8">
         
+        {/* Navigation Tabs */}
         <div className="flex gap-4 mb-8 border-b border-border">
           <button 
             onClick={() => { setActiveTab('rooms'); setSelectedRoomId(null); }} 
             className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'rooms' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
           >
             <Target className="w-4 h-4" /> Rooms & Challenges
+          </button>
+          <button 
+            onClick={() => setActiveTab('users')} 
+            className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'users' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
+          >
+            <Users className="w-4 h-4" /> User Data
           </button>
           <button 
             onClick={() => setActiveTab('settings')} 
@@ -128,121 +151,59 @@ export const AdminDashboard = () => {
           </button>
         </div>
 
+        {/* Tab Content: Rooms */}
         {activeTab === 'rooms' && (
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="font-display text-xl">
-                 {selectedRoomId ? "Room Details" : "Manage Rooms"}
-              </h2>
+              <h2 className="font-display text-xl">{selectedRoomId ? "Room Details" : "Manage Rooms"}</h2>
               {!selectedRoomId && (
-                <button 
-                    onClick={() => { setRoomToEdit(null); setIsRoomModalOpen(true); }}
-                    className="btn-terminal-filled flex items-center gap-2"
-                >
+                <button onClick={() => { setRoomToEdit(null); setIsRoomModalOpen(true); }} className="btn-terminal-filled flex items-center gap-2">
                   <Plus className="w-4 h-4" /> New Room
                 </button>
               )}
             </div>
-
             {selectedRoomId ? (
-              <RoomDetail 
-                roomId={selectedRoomId} 
-                onBack={() => setSelectedRoomId(null)} 
-              />
+              <RoomDetail roomId={selectedRoomId} onBack={() => setSelectedRoomId(null)} />
             ) : (
               isLoading ? (
                 <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>
-              ) : allRooms.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
-                  {allRooms.map((room) => (
-                    <RoomCard 
-                      key={room._id} 
-                      room={room} 
-                      type="admin" 
-                      onClick={(id) => setSelectedRoomId(id)} 
-                      onEdit={() => handleEditRoom(room)} 
-                      onDelete={() => handleDeleteRoom(room._id)}
-                    />
-                  ))}
-                </div>
               ) : (
-                <div className="text-center py-20 border border-dashed border-border rounded bg-muted/10">
-                  <p className="text-muted-foreground">No rooms found.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {allRooms.map((room) => (
+                    <RoomCard key={room._id} room={room} type="admin" onClick={(id) => setSelectedRoomId(id)} onEdit={() => handleEditRoom(room)} onDelete={() => handleDeleteRoom(room._id)} />
+                  ))}
                 </div>
               )
             )}
           </div>
         )}
+        {activeTab === 'users' && (
+          <div className="animate-fade-in">
+             <UserDetail allUsers={allUsers} /> 
+          </div>
+        )}
 
-       {activeTab === 'settings' && (
-          <div className="max-w-2xl">
+        {activeTab === 'settings' && (
+          <div className="max-w-2xl animate-fade-in">
             <h2 className="font-display text-xl mb-6">Platform Settings</h2>
-            
             <div className="terminal-card p-6 space-y-6">
               <div>
-                <label className="text-xs text-muted-foreground block mb-2">
-                  SITE NAME
-                </label>
-                <input
-                  type="text"
-                  defaultValue="OSINT CTF"
-                  className="flag-input"
-                />
+                <label className="text-xs text-muted-foreground block mb-2">SITE NAME</label>
+                <input type="text" defaultValue="OSINT CTF" className="flag-input w-full" />
               </div>
-
               <div>
-                <label className="text-xs text-muted-foreground block mb-2">
-                  WELCOME MESSAGE
-                </label>
-                <textarea
-                  defaultValue="Welcome to the OSINT Challenge Platform. Test your open-source intelligence skills."
-                  rows={3}
-                  className="flag-input resize-none"
-                />
+                <label className="text-xs text-muted-foreground block mb-2">WELCOME MESSAGE</label>
+                <textarea defaultValue="Welcome to the OSINT Challenge Platform." rows={3} className="flag-input w-full resize-none" />
               </div>
-
-              <div>
-                <label className="text-xs text-muted-foreground block mb-2">
-                  COMPLETION MESSAGE
-                </label>
-                <textarea
-                  defaultValue="Congratulations! You have completed all challenges. Your skills are impressive."
-                  rows={3}
-                  className="flag-input resize-none"
-                />
-              </div>
-
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded">
-                <div>
-                  <h4 className="font-semibold">Maintenance Mode</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Disable public access temporarily
-                  </p>
-                </div>
-                <button className="w-12 h-6 rounded-full bg-muted border border-border relative">
-                  <span className="absolute left-1 top-1 w-4 h-4 rounded-full bg-muted-foreground transition-transform" />
-                </button>
-              </div>
-
               <div className="pt-4 border-t border-border">
-                <button className="btn-danger w-full">
-                  Reset All Progress Data
-                </button>
-                <p className="text-xs text-muted-foreground text-center mt-2">
-                  This will clear all user session progress
-                </p>
+                <button className="btn-danger w-full py-2">Reset All Progress Data</button>
               </div>
             </div>
           </div>
         )}
       </main>
 
-      
-      <CreateRoomModal 
-        isOpen={isRoomModalOpen} 
-        onClose={handleCloseModal} 
-        roomData={roomToEdit}      
-      />
+      <CreateRoomModal isOpen={isRoomModalOpen} onClose={handleCloseModal} roomData={roomToEdit} />
     </div>
   );
 };

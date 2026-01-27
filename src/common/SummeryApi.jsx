@@ -1,6 +1,6 @@
 
 
-export const baseURL = "http://localhost:8080";
+export const baseURL = "https://osin-tserver.vercel.app/";
 
 const SummaryApi = {
   //  User

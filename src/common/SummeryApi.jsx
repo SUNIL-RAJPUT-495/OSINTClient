@@ -67,7 +67,22 @@ const SummaryApi = {
   getChallengesByRoom: {
     url: baseURL + "/api/challenge/getchallenges/:id",
     method: "GET"
-  }
+  },
+  // Delete Challenge
+  deleteChallenge: {
+    url: baseURL + "/api/challenge/deletechallenge/:challengeId",
+    method: "DELETE"
+  },
+  // Update Challenge 
+  updateChallenge: {
+    url: baseURL + "/api/challenge/updatechallenge/:challengeId",
+    method: "PUT"   
+  },
+  // Submit Challenge
+  submitChallenge: {
+    url: baseURL + "/api/challenge/submitchallenge",
+    method: "POST"
+  },
 };
 
 export default SummaryApi;

@@ -10,6 +10,7 @@ import { ProtectedRoute } from './component/ProtectedRoute';
 import { ProtectedRouteAdmin } from './component/ProtectedRoute';
 
 import { ChallengeView } from './component/challenges';
+import { ChallengeSuccess } from './component/ChallengeSuccess';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path='/challaneSuccess' element={<ChallengeSuccess  />} />
 
       <Route 
         path="/admin" 

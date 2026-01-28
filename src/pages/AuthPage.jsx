@@ -26,6 +26,7 @@ export const AuthPage = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
   };
+  
 
  const handleSubmit = async (e) => {
     e.preventDefault();
@@ -180,7 +181,7 @@ export const AuthPage = () => {
                   placeholder="Enter access code"
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground mt-1">Contact your administrator for access</p>
+                <p className="text-xs text-muted-foreground mt-2 ms-2">HINT:Click ctrl + u for accessCode</p>
               </div>
 
               {error && (

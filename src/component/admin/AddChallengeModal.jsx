@@ -1,9 +1,11 @@
 import { X, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SummaryApi from '../../common/SummeryApi'; 
+import { toast } from 'react-hot-toast';
 
-export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
+// added editData prop
+export const AddChallengeModal = ({ isOpen, onClose, roomId, editData }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -12,6 +14,22 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
     points: "",
     flag: ""
   });
+
+  // Jab Modal khule ya editData change ho, tab form fill hoga
+  useEffect(() => {
+    if (editData && isOpen) {
+      setFormData({
+        title: editData.title || "",
+        description: editData.description || "",
+        hint: editData.hint || "",
+        points: editData.points || "",
+        flag: editData.flag || ""
+      });
+    } else if (isOpen) {
+      // Naya challenge banane ke liye reset
+      setFormData({ title: "", description: "", hint: "", points: "", flag: "" });
+    }
+  }, [editData, isOpen]);
 
   if (!isOpen) return null;
 
@@ -22,13 +40,19 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!roomId) return alert("Error: Room ID is missing.");
+    if (!roomId) return toast.error("Error: Room ID is missing.");
 
     setIsLoading(true);
     try {
+      // Logic: Edit hai toh Update API, warna Create API
+      const apiMethod = editData ? SummaryApi.updateChallenge.method : SummaryApi.createChallenge.method;
+      const apiUrl = editData 
+        ? SummaryApi.updateChallenge.url.replace(":challengeId", editData._id) 
+        : SummaryApi.createChallenge.url;
+
       const response = await axios({
-        method: SummaryApi.createChallenge.method,
-        url: SummaryApi.createChallenge.url,
+        method: apiMethod,
+        url: apiUrl,
         data: {
           ...formData,
           points: Number(formData.points),
@@ -38,11 +62,12 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
       });
 
       if (response.data.success) {
+        toast.success(editData ? "Challenge Updated!" : "Challenge Created!");
         setFormData({ title: "", description: "", hint: "", points: "", flag: "" });
         onClose();
       }
     } catch (error) {
-      alert(error.response?.data?.message || "Failed to create challenge");
+      toast.error(error.response?.data?.message || "Failed to process request");
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +75,6 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-      
       <div 
         className="terminal-card w-full max-w-lg p-4 md:p-6 relative border border-primary/50 shadow-lg shadow-primary/10 max-h-[90vh] overflow-y-auto"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -62,12 +86,15 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
         </button>
 
         <div className="mb-6">
-          <h3 className="text-lg md:text-xl font-display font-bold text-primary tracking-wider uppercase">Add New Challenge</h3>
-          <p className="text-xs text-muted-foreground font-mono">NODE_INITIALIZATION_IN_PROGRESS</p>
+          <h3 className="text-lg md:text-xl font-display font-bold text-primary tracking-wider uppercase">
+            {editData ? "Edit Challenge" : "Add New Challenge"}
+          </h3>
+          <p className="text-xs text-muted-foreground font-mono">
+             {editData ? "NODE_RECONFIGURATION_IN_PROGRESS" : "NODE_INITIALIZATION_IN_PROGRESS"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-         
           <div>
             <label className="text-[10px] text-muted-foreground block mb-1 font-mono uppercase tracking-widest">CHALLENGE TITLE</label>
             <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="e.g. Hidden in Plain Sight" className="flag-input w-full text-sm" required />
@@ -91,7 +118,6 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
               className="flag-input w-full text-sm border-primary/40 focus:border-primary shadow-[0_0_5px_rgba(0,255,128,0.1)]" 
               required 
             />
-            <p className="text-[9px] text-muted-foreground mt-1 italic font-mono uppercase">System: This value will be compared with student input.</p>
           </div>
 
           <div>
@@ -110,8 +136,8 @@ export const AddChallengeModal = ({ isOpen, onClose, roomId }) => {
             <button type="button" onClick={onClose} disabled={isLoading} className="w-full py-2.5 rounded border border-muted-foreground/30 text-muted-foreground hover:bg-muted/10 transition-colors text-xs font-mono">
               CANCEL
             </button>
-            <button type="submit" disabled={isLoading} className="w-full py-2.5 rounded bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[0_0_15px_rgba(0,255,128,0.3)] transition-all text-xs flex items-center justify-center gap-2">
-              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> PROCESSING...</> : "ADD_CHALLENGE"}
+            <button type="submit" disabled={isLoading} className="w-full py-2.5 rounded bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[0_0_15px_rgba(0,255,128,0.3)] transition-all text-xs flex items-center justify-center gap-2 uppercase tracking-widest">
+              {isLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> PROCESSING...</> : (editData ? "UPDATE_NODE" : "ADD_CHALLENGE")}
             </button>
           </div>
         </form>

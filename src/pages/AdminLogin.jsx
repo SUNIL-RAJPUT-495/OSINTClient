@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Axios from '../utils/Axios';
 import SummaryApi from "../common/SummeryApi";
 
-import {  Eye, EyeOff, AlertTriangle, CheckCircle,Lock } from 'lucide-react';
+import { Eye, EyeOff, AlertTriangle, CheckCircle, Lock } from 'lucide-react';
 
 export const AdminLogin = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -11,12 +11,12 @@ export const AdminLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  
+
   const [formData, setFormData] = useState({
     fullName: '',
     mobileNumber: '',
     email: '',
-    password: '', 
+    password: '',
   });
 
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export const AdminLogin = () => {
     setError('');
   };
 
- const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -43,38 +43,41 @@ export const AdminLogin = () => {
         if (res.data.success) {
           setSuccess("Account created! Redirecting to login...");
           setTimeout(() => {
-            setIsSignUp(false); 
+            setIsSignUp(false);
             setSuccess('');
-            setFormData(prev => ({ ...prev, password: '' })); 
+            setFormData(prev => ({ ...prev, password: '' }));
           }, 1500);
         }
 
       } else {
         const res = await Axios({
-            url: SummaryApi.verifyUser.url, 
-            method: SummaryApi.verifyUser.method,
-            data: { 
-                email: formData.email, 
-                password: formData.password,
-                role:"admin"
-            }
+          url: SummaryApi.verifyUser.url,
+          method: SummaryApi.verifyUser.method,
+          data: {
+            email: formData.email,
+            password: formData.password,
+            role: "admin"
+          }
         });
 
-        
+
         if (res.data.success && res.data.token) {
-           
-          
-           localStorage.setItem('access_token', String(res.data.token));
-           
-           setSuccess("Access Granted. Initializing...");
-           
-           setTimeout(() => {
-             navigate("/rooms");
-           }, 1000);
+          localStorage.clear();
+
+          localStorage.setItem('access_token', res.data.token);
+          localStorage.setItem('user_data', JSON.stringify({
+            email: formData.email,
+            role: "admin"
+          }));
+          setSuccess("Access Granted. Initializing...");
+
+         setTimeout(() => {
+        navigate("/admin"); 
+    }, 1000)
         } else {
-          
-           setError("Login Failed: No Token Received from Server");
-           setIsLoading(false);
+
+          setError("Login Failed: No Token Received from Server");
+          setIsLoading(false);
         }
       }
 
@@ -101,104 +104,104 @@ export const AdminLogin = () => {
         </div>
 
         {/* Form */}
-         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-              {isSignUp && (
-                <>
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">FULL NAME</label>
-                    <input
-                      type="text"
-                      value={formData.fullName}
-                      onChange={(e) => handleChange('fullName', e.target.value)}
-                      className="flag-input"
-                      placeholder="John Doe"
-                      disabled={isLoading}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">MOBILE NUMBER</label>
-                    <input
-                      type="tel"
-                      value={formData.mobileNumber}
-                      onChange={(e) => handleChange('mobileNumber', e.target.value)}
-                      className="flag-input"
-                      placeholder="+1234567890"
-                      disabled={isLoading}
-                    />
-                  </div>
-                </>
-              )}
-
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {isSignUp && (
+            <>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">EMAIL ADDRESS</label>
+                <label className="text-xs text-muted-foreground block mb-1">FULL NAME</label>
                 <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleChange('email', e.target.value)}
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => handleChange('fullName', e.target.value)}
                   className="flag-input"
-                  placeholder="agent@example.com"
+                  placeholder="John Doe"
                   disabled={isLoading}
                 />
               </div>
-
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">PASSWORD</label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={(e) => handleChange('password', e.target.value)}
-                    className="flag-input pr-10"
-                    placeholder="••••••••"
-                    disabled={isLoading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+                <label className="text-xs text-muted-foreground block mb-1">MOBILE NUMBER</label>
+                <input
+                  type="tel"
+                  value={formData.mobileNumber}
+                  onChange={(e) => handleChange('mobileNumber', e.target.value)}
+                  className="flag-input"
+                  placeholder="+1234567890"
+                  disabled={isLoading}
+                />
               </div>
+            </>
+          )}
 
-              
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">EMAIL ADDRESS</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleChange('email', e.target.value)}
+              className="flag-input"
+              placeholder="agent@example.com"
+              disabled={isLoading}
+            />
+          </div>
 
-              {error && (
-                <div className="flex items-center gap-2 text-destructive text-sm p-3 bg-destructive/10 rounded border border-destructive/30">
-                  <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              {success && (
-                <div className="flex items-center gap-2 text-success text-sm p-3 bg-success/10 rounded border border-success/30">
-                  <CheckCircle className="w-4 h-4 flex-shrink-0" />
-                  <span>{success}</span>
-                </div>
-              )}
-
-              <button type="submit" disabled={isLoading} className="btn-terminal-filled w-full">
-                {isLoading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
+          <div>
+            <label className="text-xs text-muted-foreground block mb-1">PASSWORD</label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => handleChange('password', e.target.value)}
+                className="flag-input pr-10"
+                placeholder="••••••••"
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
+            </div>
+          </div>
 
-              <div className="text-center text-sm">
-                <span className="text-muted-foreground">
-                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-                </span>{' '}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setError('');
-                    setSuccess('');
-                  }}
-                  className="text-primary hover:text-primary/80 transition-colors"
-                >
-                  {isSignUp ? 'Sign In' : 'Sign Up'}
-                </button>
-              </div>
-            </form>
+
+
+          {error && (
+            <div className="flex items-center gap-2 text-destructive text-sm p-3 bg-destructive/10 rounded border border-destructive/30">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {success && (
+            <div className="flex items-center gap-2 text-success text-sm p-3 bg-success/10 rounded border border-success/30">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{success}</span>
+            </div>
+          )}
+
+          <button type="submit" disabled={isLoading} className="btn-terminal-filled w-full">
+            {isLoading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
+          </button>
+
+          <div className="text-center text-sm">
+            <span className="text-muted-foreground">
+              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+            </span>{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError('');
+                setSuccess('');
+              }}
+              className="text-primary hover:text-primary/80 transition-colors"
+            >
+              {isSignUp ? 'Sign In' : 'Sign Up'}
+            </button>
+          </div>
+        </form>
 
         {/* Footer */}
         <div className="border-t border-border p-4">

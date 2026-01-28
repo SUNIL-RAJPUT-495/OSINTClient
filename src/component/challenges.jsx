@@ -71,8 +71,7 @@ export const ChallengeView = () => {
   }, [currentIndex]);
 
   const currentChallenge = challenges[currentIndex];
-  // Yeh line tabhi chalegi jab isLoading false hoga
-  const isCurrentSolved = solvedChallenges.includes(currentChallenge?._id);
+ const isCurrentSolved = currentChallenge && solvedChallenges.includes(currentChallenge._id.toString());
 
   const handleFlagSubmit = async (e) => {
     e.preventDefault();
@@ -113,7 +112,6 @@ export const ChallengeView = () => {
     } finally { setIsSubmitting(false); }
   };
 
-  // AGAR LOADING HAI TOH KUCH MAT DIKHAYO (Form refresh par isiliye aata hai kyunki loading check nahi hota)
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center matrix-bg">

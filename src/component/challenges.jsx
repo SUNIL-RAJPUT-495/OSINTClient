@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Target, Trophy, Loader2, Flag, AlertCircle, Lightbulb, CheckCircle2, Lock } from 'lucide-react';
+import { Target, Loader2, Flag, Lightbulb, CheckCircle2, Lock } from 'lucide-react';
 import { cn } from "../lib/utils";
 import Axios from '../utils/Axios';
 import SummaryApi from '../common/SummeryApi';
@@ -10,19 +10,18 @@ export const ChallengeView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [roomData, setRoomData] = useState(null);
   const [challenges, setChallenges] = useState([]);
   const [solvedChallenges, setSolvedChallenges] = useState([]); 
   const [userAnswers, setUserAnswers] = useState({}); 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true); // Loading state bahut zaroori hai
+  const [isLoading, setIsLoading] = useState(true);
   const [flagInput, setFlagInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
   useEffect(() => {
     const fetchRoomDetails = async () => {
-      setIsLoading(true); // Fetching shuru
+      setIsLoading(true);
       try {
         const response = await Axios({
           url: SummaryApi.getroomchallengs.url.replace(":id", id),
@@ -31,24 +30,23 @@ export const ChallengeView = () => {
         });
 
         if (response.data.success) {
-          const data = response.data.data;
-          setRoomData(data);
-          const chs = data.challenges || [];
+          const chs = response.data.data.challenges || [];
           setChallenges(chs);
           
+          // BACKEND SE DATA LE RAHE HAIN
           const solvedIds = response.data.solvedIds || [];
-          
-          // SABSE PEHLE STATE SET KAREIN
-          setSolvedChallenges(solvedIds);
-
           const previousAnswers = response.data.userSubmissions || {};
+          
+          // IMPORTANT: Pehle states set karein, phir loading false karein
+          setSolvedChallenges(solvedIds);
+          
           const initialAnswers = {};
           solvedIds.forEach(sid => {
             initialAnswers[sid] = previousAnswers[sid] || "DATA_LOCKED_SECURE";
           });
           setUserAnswers(initialAnswers);
 
-          const firstUnsolved = chs.findIndex(c => !solvedIds.includes(c._id));
+          const firstUnsolved = chs.findIndex(c => !solvedIds.includes(c._id.toString()));
           if (firstUnsolved !== -1) {
             setCurrentIndex(firstUnsolved);
           } else if (chs.length > 0) {
@@ -59,7 +57,7 @@ export const ChallengeView = () => {
         toast.error("Failed to load environment");
         navigate("/rooms");
       } finally {
-        setIsLoading(false); // Fetching khatam hone par hi UI dikhayein
+        setIsLoading(false);
       }
     };
     if (id) fetchRoomDetails();
@@ -71,7 +69,9 @@ export const ChallengeView = () => {
   }, [currentIndex]);
 
   const currentChallenge = challenges[currentIndex];
- const isCurrentSolved = currentChallenge && solvedChallenges.includes(currentChallenge._id.toString());
+  
+  // MATCHING LOGIC FIX: Dono taraf string hona zaroori hai
+  const isCurrentSolved = currentChallenge && solvedChallenges.map(sid => sid.toString()).includes(currentChallenge._id.toString());
 
   const handleFlagSubmit = async (e) => {
     e.preventDefault();
@@ -91,12 +91,12 @@ export const ChallengeView = () => {
       });
 
       setUserAnswers(prev => ({ ...prev, [currentChallenge._id]: submittedValue }));
-      setSolvedChallenges(prev => [...prev, currentChallenge._id]);
+      setSolvedChallenges(prev => [...prev, currentChallenge._id.toString()]);
 
       if (response.data.correct) {
         toast.success("Correct Flag!");
       } else {
-        toast.error("Submitted. Moving forward...");
+        toast.error("Logged. System analyzing...");
       }
 
       const isLastQuestion = currentIndex === challenges.length - 1;
@@ -112,19 +112,22 @@ export const ChallengeView = () => {
     } finally { setIsSubmitting(false); }
   };
 
+  // 1. LOADING SCREEN (Jab tak data fetch ho raha hai, tab tak form nahi dikhna chahiye)
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center matrix-bg">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <span className="ml-4 font-mono text-primary animate-pulse italic">RESTORING SESSION...</span>
+      <div className="min-h-screen flex flex-col items-center justify-center matrix-bg">
+        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
+        <p className="font-mono text-primary animate-pulse italic">RESTORING SECURE SESSION...</p>
       </div>
     );
   }
 
+  // 2. SAFETY CHECK
+  if (!currentChallenge) return null;
+
   return (
     <div className="min-h-screen matrix-bg text-foreground p-4 md:p-8">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
-        
         <div className="lg:col-span-1 space-y-4">
           <div className="terminal-card p-4 border-primary/30">
             <h3 className="font-display text-sm font-bold text-primary mb-4 flex items-center gap-2">
@@ -132,7 +135,7 @@ export const ChallengeView = () => {
             </h3>
             <div className="space-y-2">
               {challenges.map((ch, index) => {
-                const isSolved = solvedChallenges.includes(ch._id);
+                const isSolved = solvedChallenges.map(sid => sid.toString()).includes(ch._id.toString());
                 return (
                   <button
                     key={ch._id}
@@ -152,7 +155,6 @@ export const ChallengeView = () => {
         </div>
 
         <div className="lg:col-span-3 space-y-6">
-          {currentChallenge ? (
             <div className={cn("terminal-card p-6 border-primary/50 relative overflow-hidden transition-all duration-500", isCurrentSolved && "border-green-500/30 bg-green-500/[0.01]")}>
                 <div className="flex justify-between items-center mb-6">
                   <div>
@@ -168,21 +170,6 @@ export const ChallengeView = () => {
                   {currentChallenge.description}
                 </div>
 
-                {currentChallenge.hint && (
-                  <div className="mb-6">
-                    {!showHint && !isCurrentSolved ? (
-                      <button onClick={() => setShowHint(true)} className="flex items-center gap-2 text-[10px] font-mono text-primary/60 hover:text-primary transition-colors bg-primary/5 px-3 py-1.5 rounded border border-primary/20 border-dashed">
-                        <Lightbulb className="w-3.5 h-3.5" /> DECRYPT_INTEL_HINT
-                      </button>
-                    ) : (
-                      <div className="bg-yellow-500/5 border border-yellow-500/20 p-4 rounded animate-in fade-in zoom-in-95 duration-300">
-                        <h4 className="text-[9px] font-mono text-yellow-500 uppercase mb-1 flex items-center gap-1"><Lightbulb className="w-3 h-3" /> Intel:</h4>
-                        <p className="text-sm italic text-yellow-100/70">"{currentChallenge.hint}"</p>
-                      </div>
-                    )}
-                  </div>
-                )}
-
                 <div className="mt-10 pt-6 border-t border-border/50">
                     {isCurrentSolved ? (
                         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -190,15 +177,15 @@ export const ChallengeView = () => {
                              <div className="bg-green-500/10 border border-green-500/30 p-4 rounded flex items-center gap-3">
                                 <Lock className="w-4 h-4 text-green-500 opacity-50" />
                                 <span className="font-mono text-green-400 font-bold tracking-widest break-all">
-                                    {userAnswers[currentChallenge._id] || "ENCRYPTED_LOG_PERSISTENT"}
+                                    {userAnswers[currentChallenge._id.toString()] || "ENCRYPTED_LOG_PERSISTENT"}
                                 </span>
                                 <CheckCircle2 className="ml-auto w-5 h-5 text-green-500" />
                              </div>
-                             <p className="text-[9px] text-green-500/40 font-mono mt-3 italic uppercase tracking-widest">Resubmission blocked. Authorization verified by Node Admin.</p>
+                             <p className="text-[9px] text-green-500/40 font-mono mt-3 italic uppercase tracking-widest text-center">Resubmission blocked. Authorization verified by Node Admin.</p>
                         </div>
                     ) : (
                         <form onSubmit={handleFlagSubmit} className="space-y-4">
-                            <label className="block text-[10px] font-mono text-primary mb-2 uppercase tracking-widest">Input_Auth_Flag</label>
+                            <label className="block text-[10px] font-mono text-primary mb-2 uppercase tracking-widest text-center">Input_Auth_Flag</label>
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
                                     <Flag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -220,7 +207,6 @@ export const ChallengeView = () => {
                     )}
                 </div>
             </div>
-          ) : null}
 
           <div className="flex justify-between items-center px-2 pt-4">
              <button disabled={currentIndex === 0} onClick={() => setCurrentIndex(prev => prev - 1)} className="text-[10px] font-mono text-muted-foreground hover:text-primary transition-colors uppercase">&lt;&lt; Prev_Node</button>

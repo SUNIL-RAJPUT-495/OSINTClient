@@ -22,6 +22,12 @@ const SummaryApi = {
     url:baseURL+"/api/user/get-user",
     method:"get"
   },
+
+  // getUserAnalytics
+  getUserAnalytics: {
+    url:baseURL+"/api/user/get-user-analytics",
+    method:"get"
+  },
   // Room
 
 

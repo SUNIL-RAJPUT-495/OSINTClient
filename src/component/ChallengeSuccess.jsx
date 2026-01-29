@@ -1,26 +1,29 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Trophy, Home, RotateCcw, CheckCircle2, Star, Zap } from 'lucide-react';
 
-export const ChallengeSuccess = ({ totalPoints, correctCount, totalChallenges }) => {
+export const ChallengeSuccess = () => {
+    const location = useLocation();
     const navigate = useNavigate();
-    const { id } = useParams(); // Room ID agar vaps jana ho
+    const { id } = useParams(); 
+    const roomId = location.state?.roomId;
+    const totalChallenges = location.state?.total;
+    const totalPoints = location.state?.points;
+    const correctCount = totalChallenges; // Since user completed all challenges
 
     return (
         <div className="min-h-screen matrix-bg flex items-center justify-center p-4">
             <div className="terminal-card max-w-2xl w-full p-8 text-center relative overflow-hidden border-primary/50 shadow-[0_0_30px_rgba(var(--primary),0.1)]">
                 
-                {/* Decorative Background Icon */}
                 <Trophy className="absolute -top-10 -right-10 w-48 h-48 text-primary opacity-[0.03] rotate-12" />
 
                 <div className="relative z-10 space-y-6">
-                    {/* Header Icon */}
                     <div className="flex justify-center">
                         <div className="w-20 h-20 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center animate-bounce shadow-[0_0_20px_rgba(var(--primary),0.2)]">
                             <Trophy className="w-10 h-10 text-primary" />
                         </div>
                     </div>
 
-                    {/* Main Title */}
                     <div className="space-y-2">
                         <h1 className="text-4xl font-display font-bold text-primary tracking-tighter uppercase italic">
                             Mission_Accomplished
@@ -32,7 +35,6 @@ export const ChallengeSuccess = ({ totalPoints, correctCount, totalChallenges })
 
                     <hr className="border-primary/20" />
 
-                    {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-4 py-4">
                         <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg">
                             <div className="flex items-center justify-center gap-2 mb-1">
@@ -54,12 +56,10 @@ export const ChallengeSuccess = ({ totalPoints, correctCount, totalChallenges })
                         </div>
                     </div>
 
-                    {/* Closing Message */}
                     <div className="bg-muted/10 p-4 rounded border border-white/5 italic font-mono text-sm text-foreground/70">
                         "Congratulations, operator. Your contribution to the network security has been logged. Continue to the next environment for further clearance."
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 pt-4">
                         <button 
                             onClick={() => navigate('/rooms')}

@@ -22,8 +22,6 @@ export const ProtectedRouteAdmin = ({ children }) => {
   const location = useLocation();
   const token = localStorage.getItem('access_token');
   const userRawData = localStorage.getItem('user_data');
-  console.log("Admin Guard - Token:", !!token);
-  console.log("Admin Guard - RawData:", userRawData);
 
   if (!token || token === "undefined" || token === "null" || token === "") {
     return <Navigate to="/admin/login" state={{ from: location }} replace />;
@@ -37,7 +35,6 @@ export const ProtectedRouteAdmin = ({ children }) => {
       return <Navigate to="/admin/login" replace />;
     }
   } catch (error) {
-    console.error("User data parsing error:", error);
     return <Navigate to="/admin/login" replace />;
   }
 

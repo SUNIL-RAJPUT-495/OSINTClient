@@ -13,7 +13,6 @@ export const RoomDetail = ({ roomId, onBack }) => {
     const [loading, setLoading] = useState(true);
     const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
 
-    // NEW: Edit ke liye state
     const [editData, setEditData] = useState(null);
 
     const fetchRoomDetails = async () => {
@@ -36,7 +35,7 @@ export const RoomDetail = ({ roomId, onBack }) => {
         }
     };
 
-    // --- DELETE CHALLENGE ---
+    
     const deleteChallenge = async (challengeId) => {
         if (!window.confirm("Delete this challenge?")) return;
         try {
@@ -58,10 +57,10 @@ export const RoomDetail = ({ roomId, onBack }) => {
         }
     };
 
-    // --- EDIT HANDLER ---
+
     const handleEditClick = (challenge) => {
-        setEditData(challenge); // Challenge ka pura data state mein daalo
-        setIsChallengeModalOpen(true); // Modal open karo
+        setEditData(challenge); 
+        setIsChallengeModalOpen(true); 
     };
 
     useEffect(() => {
@@ -92,7 +91,7 @@ export const RoomDetail = ({ roomId, onBack }) => {
                             </p>
                         </div>
                     </div>
-                    {/* Room Level Edit/Delete (Optional) */}
+
                     <div className="flex items-center gap-2">
                         <button className="p-2 text-muted-foreground hover:text-primary transition-colors">
                             <Edit className="w-4 h-4" />
@@ -116,7 +115,6 @@ export const RoomDetail = ({ roomId, onBack }) => {
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-secondary font-mono mr-2">{chal.points} pts</span>
 
-                                    {/* EDIT BUTTON FIX */}
                                     <button
                                         className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
                                         onClick={() => handleEditClick(chal)}
@@ -124,7 +122,6 @@ export const RoomDetail = ({ roomId, onBack }) => {
                                         <Edit className="w-3.5 h-3.5" />
                                     </button>
 
-                                    {/* DELETE BUTTON */}
                                     <button
                                         className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
                                         onClick={() => deleteChallenge(chal._id)}

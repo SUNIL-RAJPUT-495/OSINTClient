@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, LogOut, Target, Settings, Plus, Loader2, Users, Trash2, Mail } from 'lucide-react';
+import { Shield, LogOut, Target, Settings, Plus, Loader2, Users } from 'lucide-react';
 import { cn } from "../lib/utils";
 import { toast } from 'react-hot-toast';
 
@@ -10,8 +10,7 @@ import SummaryApi from '../common/SummeryApi';
 import { CreateRoomModal } from '../component/admin/CreateRoomModal';
 import { RoomCard } from '../component/RoomCard';
 import { RoomDetail } from '../component/admin/RoomDetail';
-
-import {UserDetail} from '../component/admin/userdetail'
+import { UserDetail } from '../component/admin/userdetail';
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -19,12 +18,33 @@ export const AdminDashboard = () => {
   const [allRooms, setAllRooms] = useState([]);
   const [allUsers, setAllUsers] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('rooms');
 
-  const [selectedRoomId, setSelectedRoomId] = useState(null);
+  // 1. STATE INITIALIZATION (LocalStorage se uthao agar hai toh)
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('admin_activeTab') || 'rooms';
+  });
+
+  const [selectedRoomId, setSelectedRoomId] = useState(() => {
+    return localStorage.getItem('admin_selectedRoomId') || null;
+  });
+
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
   const [roomToEdit, setRoomToEdit] = useState(null);
 
+  // 2. PERSISTENCE EFFECTS (Jab state change ho, tab save karo)
+  useEffect(() => {
+    localStorage.setItem('admin_activeTab', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (selectedRoomId) {
+      localStorage.setItem('admin_selectedRoomId', selectedRoomId);
+    } else {
+      localStorage.removeItem('admin_selectedRoomId');
+    }
+  }, [selectedRoomId]);
+
+  // --- API CALLS ---
   const fetchRooms = async () => {
     setIsLoading(true);
     try {
@@ -45,19 +65,17 @@ export const AdminDashboard = () => {
   };
 
   const fetchUsers = async () => {
-    
     try{
       const response = await Axios({
         url: SummaryApi.getuser.url, 
         method: SummaryApi.getuser.method,
         withCredentials: true
       });
-      console.log(response.data.data)
     if (response.data.success) {
         setAllUsers(response.data.data); 
       }
     }
-   catch (err) {
+    catch (err) {
       console.error("Failed to fetch users:", err);
       toast.error("Could not load users list");
     }
@@ -68,10 +86,18 @@ export const AdminDashboard = () => {
     fetchUsers();
   }, []);
 
+  // --- HANDLERS ---
   const handleLogout = async () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('user_data');
     localStorage.removeItem('admin_token');
+    
+    // Clear Admin Session Data
+    localStorage.removeItem('admin_activeTab');
+    localStorage.removeItem('admin_selectedRoomId');
+    localStorage.removeItem('admin_activeUserId'); // UserDetail ka data
+    localStorage.removeItem('admin_activeRoomName'); // UserDetail ka data
+
     toast.success("Logged out");
     navigate("/");
   };
@@ -138,13 +164,13 @@ export const AdminDashboard = () => {
             <Target className="w-4 h-4" /> Rooms & Challenges
           </button>
           <button 
-            onClick={() => setActiveTab('users')} 
+            onClick={() => { setActiveTab('users'); setSelectedRoomId(null); }} 
             className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'users' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
           >
             <Users className="w-4 h-4" /> User Data
           </button>
           <button 
-            onClick={() => setActiveTab('settings')} 
+            onClick={() => { setActiveTab('settings'); setSelectedRoomId(null); }} 
             className={cn("flex items-center gap-2 px-4 py-3 border-b-2 transition-colors", activeTab === 'settings' ? "border-primary text-primary bg-primary/5" : "border-transparent text-muted-foreground hover:text-foreground")}
           >
             <Settings className="w-4 h-4" /> Settings
@@ -177,12 +203,15 @@ export const AdminDashboard = () => {
             )}
           </div>
         )}
+
+        {/* Tab Content: Users */}
         {activeTab === 'users' && (
           <div className="animate-fade-in">
              <UserDetail allUsers={allUsers} /> 
           </div>
         )}
 
+        {/* Tab Content: Settings */}
         {activeTab === 'settings' && (
           <div className="max-w-2xl animate-fade-in">
             <h2 className="font-display text-xl mb-6">Platform Settings</h2>

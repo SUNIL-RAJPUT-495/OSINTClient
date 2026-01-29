@@ -32,6 +32,7 @@ export const ChallengeView = () => {
     const saved = localStorage.getItem(`answers_${id}`);
     return saved ? JSON.parse(saved) : {};
   });
+  
 
   const [hintUsed, setHintUsed] = useState(() => {
     const saved = localStorage.getItem(`hints_${id}`);

@@ -194,7 +194,7 @@ export const UserDetail = () => {
                 <h2 className="text-xl text-primary font-display uppercase tracking-widest">{selectedUser.fullName}</h2>
                 <div className="flex gap-4 text-[11px] text-muted-foreground font-mono mt-1">
                     <span className="flex items-center gap-1"><Mail className="w-3 h-3"/> {selectedUser.email}</span>
-                    <span className="flex items-center gap-1"><Phone className="w-3 h-3"/> {selectedUser.mobile || "N/A"}</span>
+                    <span className="flex items-center gap-1"><Phone className="w-3 h-3"/> {selectedUser.mobileNumber || "N/A"}</span>
                 </div>
             </div>
             <div className="text-right">
@@ -277,7 +277,7 @@ export const UserDetail = () => {
                 <td className="p-4">
                     <div className="flex flex-col gap-1">
                         <span className="text-[11px] text-muted-foreground font-mono flex items-center gap-2"><Mail className="w-3 h-3"/> {user.email}</span>
-                        <span className="text-[11px] text-muted-foreground font-mono flex items-center gap-2"><Phone className="w-3 h-3"/> {user.mobile || "N/A"}</span>
+                        <span className="text-[11px] text-muted-foreground font-mono flex items-center gap-2"><Phone className="w-3 h-3"/> {user.mobileNumber || "N/A"}</span>
                     </div>
                 </td>
                 <td className="p-4 text-center">

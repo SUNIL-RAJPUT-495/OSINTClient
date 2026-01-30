@@ -9,7 +9,7 @@ export const ChallengeSuccess = () => {
     const roomId = location.state?.roomId;
     const totalChallenges = location.state?.total;
     const totalPoints = location.state?.points;
-    const correctCount = totalChallenges; // Since user completed all challenges
+    const correctCount = totalChallenges; 
 
     return (
         <div className="min-h-screen matrix-bg flex items-center justify-center p-4">
@@ -48,7 +48,7 @@ export const ChallengeSuccess = () => {
                         <div className="bg-success/5 border border-success/20 p-4 rounded-lg">
                             <div className="flex items-center justify-center gap-2 mb-1">
                                 <CheckCircle2 className="w-4 h-4 text-green-500" />
-                                <span className="text-[10px] font-mono text-muted-foreground uppercase">Accuracy</span>
+                                <span className="text-[10px] font-mono text-muted-foreground uppercase">Attempts</span>
                             </div>
                             <div className="text-3xl font-display font-bold text-green-500 tracking-widest">
                                 {correctCount}/{totalChallenges}

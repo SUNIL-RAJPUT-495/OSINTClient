@@ -5,7 +5,6 @@ export const baseURL = "https://osin-tserver.vercel.app";
 const SummaryApi = {
   //  User
 
-
   // Create User
   CreateUser:{
     url:baseURL+"/api/user/create-user",

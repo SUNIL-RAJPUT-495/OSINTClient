@@ -1,6 +1,6 @@
 
 
-export const baseURL = "https://osin-tserver.vercel.app";
+export const baseURL = "http://localhost:8080";
 
 const SummaryApi = {
   //  User
@@ -59,10 +59,6 @@ const SummaryApi = {
   },
 
   // Challenge
-
-
-
-
   // Create Challenge
   createChallenge: {
     url: baseURL + "/api/challenge/CreateChallenge",

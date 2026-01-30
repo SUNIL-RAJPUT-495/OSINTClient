@@ -106,7 +106,7 @@
             if(terminal.children.length > 50) terminal.removeChild(terminal.children[0]);
         }, 2000);
 
-        // Random Connections
+        <!-- Random Connections
         const connList = document.getElementById('connections-list');
         function addConn() {
             const id = Math.random().toString(36).substring(7);
@@ -117,6 +117,114 @@
         }
         setInterval(addConn, 1500);
     </script> -->
+     <div class="space-y-6">
+            <div class="matrix-card p-4">
+                <h2 class="text-sm border-b border-green-800 mb-4 uppercase">Resource_Usage</h2>
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>CPU_LOAD</span><span id="cpu-val">24%</span></div>
+                        <div class="progress-bar"><div id="cpu-fill" class="progress-fill" style="width: 24%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>MEMORY_ALLOCATION</span><span id="mem-val">62%</span></div>
+                        <div class="progress-bar"><div id="mem-fill" class="progress-fill" style="width: 62%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs mb-1"><span>STORAGE_CAPACITY</span><span>89.4%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 89%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="matrix-card p-4 h-64 overflow-hidden relative">
+                <h2 class="text-sm border-b border-green-800 mb-4 uppercase">Active_Connections</h2>
+                <div id="connections-list" class="text-[10px] space-y-1">
+                    </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-2 space-y-6">
+            <div class="matrix-card p-6 h-96 flex flex-col">
+                <h2 class="text-sm border-b border-green-800 mb-4 uppercase text-center">Data_Stream_Analysis</h2>
+                <div class="flex-grow flex items-end gap-1 overflow-hidden" id="graph-container">
+                    </div>
+            </div>
+
+            <div class="matrix-card p-4 bg-black font-mono h-48 overflow-y-auto" id="terminal">
+                <p class="text-xs text-blue-400">[SYSTEM] Initializing secure boot sequence...</p>
+                <p class="text-xs text-blue-400">[SYSTEM] Loading environment variables...</p>
+                <p class="text-xs text-blue-400">[SYSTEM] Connecting to MongoDB Cluster_01...</p>
+                <p class="text-xs text-green-400">[SUCCESS] Database connection established.</p>
+                <p class="text-xs text-yellow-400">[WARN] High latency detected in node_uk_02.</p>
+                </div>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-[10px] opacity-50 flex justify-between">
+        <p>© 2026 NETSECURE_CORE. ALL RIGHTS RESERVED.</p>
+        <p>ACCESS_LEVEL: ADMIN_ROOT</p>
+    </footer>
+
+    <script>
+        // Update Clock
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-date').innerText = now.toLocaleDateString();
+            document.getElementById('current-time').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Simulate Resource Usage
+        setInterval(() => {
+            const cpu = Math.floor(Math.random() * 40) + 20;
+            const mem = Math.floor(Math.random() * 20) + 60;
+            document.getElementById('cpu-val').innerText = cpu + '%';
+            document.getElementById('cpu-fill').style.width = cpu + '%';
+            document.getElementById('mem-val').innerText = mem + '%';
+            document.getElementById('mem-fill').style.width = mem + '%';
+        }, 3000);
+
+        // Generate Graph Bars
+        const graph = document.getElementById('graph-container');
+        for(let i=0; i<60; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'bg-green-500 w-full opacity-50 hover:opacity-100 transition-all';
+            bar.style.height = Math.random() * 100 + '%';
+            graph.appendChild(bar);
+        }
+
+        // Live Log Updates
+        const terminal = document.getElementById('terminal');
+        const logs = [
+            "[INFO] Request received from IP 192.168.1.45",
+            "[AUTH] Admin session validated successfully",
+            "[DB] Query executed in 14ms: SELECT * FROM users",
+            "[SEC] Firewall blocked unauthorized packet",
+            "[NODE] Memory cleanup completed",
+            "[API] End-point /create-user called"
+        ];
+
+        setInterval(() => {
+            const p = document.createElement('p');
+            p.className = 'text-xs text-green-600 opacity-80';
+            p.innerHTML = `<span class="text-white">${new Date().toLocaleTimeString()}</span> ${logs[Math.floor(Math.random()*logs.length)]}`;
+            terminal.appendChild(p);
+            terminal.scrollTop = terminal.scrollHeight;
+            if(terminal.children.length > 50) terminal.removeChild(terminal.children[0]);
+        }, 2000);
+
+        // Random Connections
+        const connList = document.getElementById('connections-list');
+        function addConn() {
+            const id = Math.random().toString(36).substring(7);
+            const p = document.createElement('p');
+            p.innerHTML = `CONN_${id}: <span class="text-white">ESTABLISHED</span> -> PORT_${Math.floor(Math.random()*9000)}`;
+            connList.prepend(p);
+            if(connList.children.length > 15) connList.removeChild(connList.lastChild);
+        }
+        setInterval(addConn, 1500);
+    </script> --> -->
     <!-- ------------------------------------------------------------------------------- -->
     <!-- hint: access code is new2025 -->
     <!-- new2025 -->

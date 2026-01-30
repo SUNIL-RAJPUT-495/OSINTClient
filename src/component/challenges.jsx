@@ -33,7 +33,6 @@ export const ChallengeView = () => {
     return saved ? JSON.parse(saved) : {};
   });
   
-
   const [hintUsed, setHintUsed] = useState(() => {
     const saved = localStorage.getItem(`hints_${id}`);
     return saved ? JSON.parse(saved) : {};
@@ -46,10 +45,13 @@ export const ChallengeView = () => {
         const response = await Axios({
           url: SummaryApi.getroomchallengs.url.replace(":id", id),
           method: SummaryApi.getroomchallengs.method,
-          withCredentials: true 
+          withCredentials: true,
+          // FIX: Token Header mein bhejna zaroori hai mobile ke liye
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+          }
         });
         
-
         if (response.data.success) {
           const data = response.data.data;
           setRoomData(data);
@@ -98,9 +100,12 @@ export const ChallengeView = () => {
     }
     setShowHint(true);
   };
-const handleFlagSubmit = async (e) => {
+
+  const handleFlagSubmit = async (e) => {
     e.preventDefault();
-    const submittedValue = flagInput.trim();
+    
+    // FIX: .trim() lagaya taaki mobile keyboard ka extra space hat jaye
+    const submittedValue = flagInput.trim(); 
     
     if (!submittedValue || isCurrentSolved) return;
 
@@ -113,7 +118,11 @@ const handleFlagSubmit = async (e) => {
           challengeId: currentChallenge._id,
           answer: submittedValue, 
         },
-        withCredentials: true 
+        withCredentials: true,
+        // FIX: Mobile browsers cookies block karte hain, Header safe hai
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+        }
       });
 
       if (response.data.success) {
@@ -147,7 +156,9 @@ const handleFlagSubmit = async (e) => {
         }
       }
     } catch (error) {
-      toast.error("Transmission Failure: Uplink Interrupted.");
+       // Debugging ke liye mobile par asli error dekhne ke liye
+       // alert("Error: " + (error.response?.data?.message || error.message));
+       toast.error(error.response?.data?.message || "Transmission Failure: Uplink Interrupted.");
     } finally { 
       setIsSubmitting(false); 
     }
@@ -178,7 +189,8 @@ const handleFlagSubmit = async (e) => {
         </div>
       </nav>
 
-      <main className="p-4 md:p-8">
+      {/* FIX: pb-32 add kiya taaki keyboard aane par content chuppe nahi */}
+      <main className="p-4 md:p-8 pb-32">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
           <div className="lg:col-span-1 space-y-4">
             <div className="terminal-card p-4 border-primary/30">
@@ -231,7 +243,7 @@ const handleFlagSubmit = async (e) => {
                             <Lightbulb className="w-3.5 h-3.5" /> DECRYPT_INTEL_HINT
                            </button>
                            <p className="flex items-center gap-1.5 text-[9px] font-mono text-destructive/80 animate-pulse">
-                              <AlertTriangle className="w-3 h-3" /> WARNING: VIEWING HINT WILL DEDUCT 50 PTS
+                             <AlertTriangle className="w-3 h-3" /> WARNING: VIEWING HINT WILL DEDUCT 50 PTS
                            </p>
                         </div>
                       ) : (
@@ -264,6 +276,11 @@ const handleFlagSubmit = async (e) => {
                                       <input 
                                           type="text"
                                           autoComplete="off"
+                                          // FIX: Mobile Keyboard ke liye sabse important settings
+                                          autoCapitalize="none"
+                                          autoCorrect="off"
+                                          spellCheck="false"
+                                          // ----------------------------------------------------
                                           placeholder="NC-FLAG{...}"
                                           className="flag-input w-full pl-10"
                                           value={flagInput}

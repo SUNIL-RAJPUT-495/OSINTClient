@@ -45,7 +45,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path='/challaneSuccess' element={<ChallengeSuccess  />} />
+      <Route path='/challaneSuccess' element={ <ProtectedRoute><ChallengeSuccess  /></ProtectedRoute>} />
 
       <Route 
         path="/admin" 

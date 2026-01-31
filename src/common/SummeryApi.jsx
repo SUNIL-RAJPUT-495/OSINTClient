@@ -1,6 +1,6 @@
 
 
-export const baseURL = "https://osin-tserver.vercel.app";
+export const baseURL = "http://localhost:8080";
 
 const SummaryApi = {
   //  User
@@ -26,6 +26,12 @@ const SummaryApi = {
   getUserAnalytics: {
     url:baseURL+"/api/user/get-user-analytics",
     method:"get"
+  },
+
+  // Deduct Points
+  deductPoints: {
+    url: baseURL + "/api/user/deduct-points",
+    method: "post"
   },
   // Room
 

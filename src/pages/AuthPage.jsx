@@ -127,13 +127,22 @@ export const AuthPage = () => {
                   <div>
                     <label className="text-xs text-muted-foreground block mb-1">MOBILE NUMBER</label>
                     <input
-                      type="tel"
-                      value={formData.mobileNumber}
-                      onChange={(e) => handleChange('mobileNumber', e.target.value)}
-                      className="flag-input"
-                      placeholder="+1234567890"
-                      disabled={isLoading}
-                    />
+        type="tel"
+        value={formData.mobileNumber}
+        onChange={(e) => {
+            const value = e.target.value;
+            
+            const onlyNums = value.replace(/[^0-9]/g, '');
+
+            if (onlyNums.length <= 10) {
+                handleChange('mobileNumber', onlyNums);
+            }
+        }}
+        className="flag-input"
+        placeholder="9876543210"
+        maxLength={10} 
+        disabled={isLoading}
+    />
                   </div>
                 </>
               )}

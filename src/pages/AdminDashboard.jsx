@@ -19,7 +19,6 @@ export const AdminDashboard = () => {
   const [allUsers, setAllUsers] = useState([]); 
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. STATE INITIALIZATION (LocalStorage se uthao agar hai toh)
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('admin_activeTab') || 'rooms';
   });

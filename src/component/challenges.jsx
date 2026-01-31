@@ -98,6 +98,7 @@ export const ChallengeView = () => {
   const isCurrentSolved = currentChallenge && solvedChallenges.includes(String(currentChallenge._id));
   const isCurrentAttempted = currentChallenge && attemptedChallenges.includes(String(currentChallenge._id));
 
+  // --- HINT HANDLER: VISUAL DEDUCTION ONLY ---
   const handleShowHint = () => {
     if (hintUsed[currentIndex]) {
       setShowHint(true);
@@ -120,7 +121,7 @@ export const ChallengeView = () => {
     });
   };
 
-  const handleFlagSubmit = async (e) => {
+ const handleFlagSubmit = async (e) => {
     e.preventDefault();
     const submittedValue = flagInput.trim();
     if (!submittedValue || isCurrentAttempted) return;
@@ -144,36 +145,46 @@ export const ChallengeView = () => {
       if (response.data.success) {
         const cid = String(currentChallenge._id);
         
+        // 1. Lock Input (Attempted mark karo)
         setAttemptedChallenges(prev => [...new Set([...prev, cid])]);
         setUserAnswers(prev => ({ ...prev, [cid]: submittedValue }));
 
+        // Navigation ke liye temporary points variable
+        let currentTotalPoints = totalPoints;
+
+        // 2. CHECK: Sahi hai ya Galat?
         if (!response.data.correct) {
+            // --- CASE: WRONG ANSWER ❌ ---
             setIsWrongAnswer(true);
             setBackendError("Incorrect Flag");
-            toast.error("Incorrect Flag. Node Locked.");
-            setIsSubmitting(false);
+            toast.error("Incorrect Flag. Node Locked. Moving next...");
+            // Yahan se 'return' hata diya hai, taaki code niche Navigation tak jaye.
+        } 
+        else {
+            // --- CASE: CORRECT ANSWER ✅ ---
+            setSolvedChallenges(prev => [...new Set([...prev, cid])]);
+            
+            const fullChallengePoints = currentChallenge.points || 0;
+            setTotalPoints(prev => prev + fullChallengePoints);
+            currentTotalPoints += fullChallengePoints; // Local update for navigation
+            
+            if (didUseHint) {
+                 toast.success(`Correct! +${fullChallengePoints - 50} Net XP Added.`);
+            } else {
+                 toast.success(`Correct! +${fullChallengePoints} XP Added.`);
+            }
         }
 
-        setSolvedChallenges(prev => [...new Set([...prev, cid])]);
-        
-        
-        const fullChallengePoints = currentChallenge.points || 0;
-        setTotalPoints(prev => prev + fullChallengePoints);
-        
-        if (didUseHint) {
-             toast.success(`Correct! +${fullChallengePoints - 50} Net XP Added.`);
-        } else {
-             toast.success(`Correct! +${fullChallengePoints} XP Added.`);
-        }
-
+        // 3. NAVIGATION (Ye ab Sahi aur Galat dono me chalega) 🚀
         const isLastQuestion = currentIndex === challenges.length - 1;
-       setTimeout(() => {
+
+        setTimeout(() => {
             if (!isLastQuestion) {
                 setCurrentIndex(prev => prev + 1);
             } else {
-                navigate("/challaneSuccess", { state: { points: totalPoints } });
+                navigate("/challaneSuccess", { state: { points: currentTotalPoints } });
             }
-        }, 1500);
+        }, 1500); 
       }
     } catch (error) {
       setIsWrongAnswer(true);
@@ -182,7 +193,6 @@ export const ChallengeView = () => {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="min-h-screen matrix-bg text-foreground">
       <nav className="border-b border-primary/20 bg-background/50 backdrop-blur-md sticky top-0 z-50">

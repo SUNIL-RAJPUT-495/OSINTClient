@@ -98,7 +98,6 @@ export const ChallengeView = () => {
   const isCurrentSolved = currentChallenge && solvedChallenges.includes(String(currentChallenge._id));
   const isCurrentAttempted = currentChallenge && attemptedChallenges.includes(String(currentChallenge._id));
 
-  // --- HINT HANDLER: VISUAL DEDUCTION ONLY ---
   const handleShowHint = () => {
     if (hintUsed[currentIndex]) {
       setShowHint(true);
@@ -110,10 +109,8 @@ export const ChallengeView = () => {
         return;
     }
 
-    // 1. VISUAL DEDUCTION: Turant frontend se kam kar do
     setTotalPoints(prev => prev - 50); 
     
-    // 2. Mark hint as used
     setHintUsed(prev => ({ ...prev, [currentIndex]: true }));
     setShowHint(true);
     
@@ -123,7 +120,6 @@ export const ChallengeView = () => {
     });
   };
 
-  // --- SUBMIT HANDLER: BACKEND CALCULATION ---
   const handleFlagSubmit = async (e) => {
     e.preventDefault();
     const submittedValue = flagInput.trim();
@@ -156,16 +152,10 @@ export const ChallengeView = () => {
             setBackendError("Incorrect Flag");
             toast.error("Incorrect Flag. Node Locked.");
             setIsSubmitting(false);
-            return;
         }
 
         setSolvedChallenges(prev => [...new Set([...prev, cid])]);
         
-        // --- POINTS LOGIC (MATHS FIX) ---
-        // Kyunki humne pehle hi 50 minus kar diye the (Visual),
-        // Ab hum pure points add karenge taaki maths balance ho jaye.
-        // Example: 100 - 50 (Hint) + 100 (Reward) = 150 Total.
-        // Backend bhi yahi karega: 100 (Base) + 50 (Net Reward) = 150 Total.
         
         const fullChallengePoints = currentChallenge.points || 0;
         setTotalPoints(prev => prev + fullChallengePoints);
@@ -177,8 +167,13 @@ export const ChallengeView = () => {
         }
 
         const isLastQuestion = currentIndex === challenges.length - 1;
-        if (!isLastQuestion) setTimeout(() => setCurrentIndex(prev => prev + 1), 1200);
-        else setTimeout(() => navigate("/challaneSuccess", { state: { points: totalPoints + fullChallengePoints } }), 1500);
+       setTimeout(() => {
+            if (!isLastQuestion) {
+                setCurrentIndex(prev => prev + 1);
+            } else {
+                navigate("/challaneSuccess", { state: { points: totalPoints } });
+            }
+        }, 1500);
       }
     } catch (error) {
       setIsWrongAnswer(true);
